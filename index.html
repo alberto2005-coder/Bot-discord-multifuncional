@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bot de Discord - Proyecto</title>
+    <style>
+        :root {
+            --primary: #5865F2;
+            --primary-dark: #4752C4;
+            --dark: #23272A;
+            --darker: #1e2124;
+            --light: #FFFFFF;
+            --gray: #99AAB5;
+            --success: #57F287;
+            --danger: #ED4245;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 75%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--darker);
+            padding: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            color: var(--light);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            user-select: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--light);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: var(--light);
+        }
+
+        .hero {
+            padding: 80px 0;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .features {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title h2 {
+            font-size: 2rem;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--darker);
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            background-color: var(--primary);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .feature-icon i {
+            font-size: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .command-list {
+            padding: 80px 0;
+            background-color: var(--darker);
+        }
+
+        .command-categories {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .category-btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .category-btn.active,
+        .category-btn:hover {
+            background-color: var(--primary);
+            color: var(--light);
+        }
+
+        .commands-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .command-card {
+            background-color: var(--dark);
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid var(--primary);
+            transition: opacity 0.3s ease;
+        }
+
+        .command-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .command-card h4::before {
+            content: '/';
+            display: inline-block;
+            margin-right: 5px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .stats {
+            padding: 80px 0;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .stat-item {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 8px;
+            border-top: 4px solid var(--primary);
+        }
+
+        .stat-item h3 {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .stat-item p {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        footer {
+            background-color: var(--darker);
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .social-link:hover {
+            background-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            /* oculto por defecto */
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.75);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: var(--darker);
+            border-radius: 8px;
+            padding: 30px 40px;
+            max-width: 500px;
+            width: 100%;
+            color: var(--light);
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .close-btn {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--gray);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: var(--danger);
+        }
+
+        .modal form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .modal label {
+            font-weight: 600;
+        }
+
+        .modal input,
+        .modal textarea {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        .modal input[type="submit"] {
+            background-color: var(--primary);
+            color: var(--light);
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .modal input[type="submit"]:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav ul {
+                justify-content: center;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .command-categories {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="https://images-ext-1.discordapp.net/external/7D2zlc-7sAJM6uHhpV6AZWNXmQF8Liz61R6FZc6BcJw/%3Fsize%3D256/https/cdn.discordapp.com/avatars/1016814881112084533/2fda82311c9a9f38cf42dbebde147741.webp?format=webp&width=320&height=320" alt="Logo pequeño del Bot de Discord">
+                <h1>Bot de Discord</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#features">Características</a></li>
+                    <li><a href="#commands">Comandos</a></li>
+                    <li><button id="contactBtn" class="btn btn-outline">Contacto</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero container">
+        <h2>¡Bienvenido a nuestro Bot de Discord!</h2>
+        <p>Descubre funcionalidades increíbles para moderar y animar tu servidor.</p>
+        <div class="btn-group">
+            <a href="https://discord.com/oauth2/authorize?client_id=123456789&scope=bot" target="_blank"
+                class="btn btn-primary">Invitar Bot</a>
+            <a href="#commands" class="btn btn-outline">Ver Comandos</a>
+        </div>
+    </section>
+
+    <section id="features" class="features container">
+        <div class="section-title">
+            <h2>Características Principales</h2>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎉</div>
+                <h3>Diversión</h3>
+                <p>Comandos para juegos y entretenimiento.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>Moderación</h3>
+                <p>Herramientas para mantener el orden en tu servidor.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Estadísticas</h3>
+                <p>Obtén datos y análisis detallados.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="commands" class="command-list container">
+        <div class="section-title">
+            <h2>Lista de Comandos</h2>
+        </div>
+        <div class="command-categories">
+            <button class="category-btn active" data-category="all">Todos</button>
+            <button class="category-btn" data-category="diversion">Diversión</button>
+            <button class="category-btn" data-category="moderacion">Moderación</button>
+            <button class="category-btn" data-category="musica">Música</button>
+            <button class="category-btn" data-category="utilidad">Utilidad</button>
+            <button class="category-btn" data-category="ticket">Ticket</button>
+        </div>
+        <div class="commands-container">
+
+            <!-- Utilidad -->
+            <div class="command-card" data-category="utilidad">
+                <h4>ping</h4>
+                <p>Check bot latency.</p>
+            </div>
+            <div class="command-card" data-category="utilidad">
+                <h4>help</h4>
+                <p>Show this help message.</p>
+            </div>
+
+            <!-- Información -->
+            <div class="command-card" data-category="utilidad">
+                <h4>serverinfo</h4>
+                <p>Get server information.</p>
+            </div>
+            <div class="command-card" data-category="utilidad">
+                <h4>userinfo</h4>
+                <p>Get user information.</p>
+            </div>
+
+            <!-- Diversión -->
+            <div class="command-card" data-category="diversion">
+                <h4>joke</h4>
+                <p>Random joke.</p>
+            </div>
+            <div class="command-card" data-category="diversion">
+                <h4>fact</h4>
+                <p>Fun fact.</p>
+            </div>
+            <div class="command-card" data-category="diversion">
+                <h4>roll</h4>
+                <p>Roll dice.</p>
+            </div>
+            <div class="command-card" data-category="diversion">
+                <h4>8ball</h4>
+                <p>Magic 8-ball.</p>
+            </div>
+            <div class="command-card" data-category="diversion">
+                <h4>meme</h4>
+                <p>Random meme.</p>
+            </div>
+            <div class="command-card" data-category="diversion">
+                <h4>coinflip</h4>
+                <p>Flip a coin.</p>
+            </div>
+            <div class="command-card" data-category="diversion">
+                <h4>rps</h4>
+                <p>Rock Paper Scissors.</p>
+            </div>
+            <div class="command-card" data-category="diversion">
+                <h4>random-number</h4>
+                <p>Random number.</p>
+            </div>
+            <div class="command-card" data-category="diversion">
+                <h4>love-calculator</h4>
+                <p>Love compatibility.</p>
+            </div>
+
+            <!-- Moderación -->
+            <div class="command-card" data-category="moderacion">
+                <h4>kick</h4>
+                <p>Kick a member.</p>
+            </div>
+            <div class="command-card" data-category="moderacion">
+                <h4>ban</h4>
+                <p>Ban a member.</p>
+            </div>
+            <div class="command-card" data-category="moderacion">
+                <h4>warn</h4>
+                <p>Warn a user.</p>
+            </div>
+            <div class="command-card" data-category="moderacion">
+                <h4>warnings</h4>
+                <p>View user warnings.</p>
+            </div>
+            <div class="command-card" data-category="moderacion">
+                <h4>mute</h4>
+                <p>Mute a user.</p>
+            </div>
+            <div class="command-card" data-category="moderacion">
+                <h4>unmute</h4>
+                <p>Unmute a user.</p>
+            </div>
+
+            <!-- Música -->
+            <div class="command-card" data-category="musica">
+                <h4>play</h4>
+                <p>Play music from YouTube.</p>
+            </div>
+            <div class="command-card" data-category="musica">
+                <h4>skip</h4>
+                <p>Skip current song.</p>
+            </div>
+            <div class="command-card" data-category="musica">
+                <h4>stop</h4>
+                <p>Stop music and clear queue.</p>
+            </div>
+            <div class="command-card" data-category="musica">
+                <h4>pause</h4>
+                <p>Pause/resume music.</p>
+            </div>
+            <div class="command-card" data-category="musica">
+                <h4>queue</h4>
+                <p>Show music queue.</p>
+            </div>
+            <div class="command-card" data-category="musica">
+                <h4>volume</h4>
+                <p>Change volume (0-100).</p>
+            </div>
+            <div class="command-card" data-category="musica">
+                <h4>loop</h4>
+                <p>Set loop mode.</p>
+            </div>
+            <div class="command-card" data-category="musica">
+                <h4>shuffle</h4>
+                <p>Shuffle queue.</p>
+            </div>
+            <div class="command-card" data-category="musica">
+                <h4>nowplaying</h4>
+                <p>Current song info.</p>
+            </div>
+
+            <!-- Ticket -->
+            <div class="command-card" data-category="ticket">
+                <h4>ticket-panel</h4>
+                <p>Create ticket panel (Admin only).</p>
+            </div>
+            <div class="command-card" data-category="ticket">
+                <h4>close-ticket</h4>
+                <p>Close current ticket (Admin only).</p>
+            </div>
+            <div class="command-card" data-category="ticket">
+                <h4>add-to-ticket</h4>
+                <p>Add user to ticket (Admin only).</p>
+            </div>
+            <div class="command-card" data-category="ticket">
+                <h4>remove-from-ticket</h4>
+                <p>Remove user from ticket (Admin only).</p>
+            </div>
+
+        </div>
+
+        </div>
+        </div>
+    </section>
+
+    <section class="stats container">
+        <div class="section-title">
+            <h2>Estadísticas</h2>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h3>5000+</h3>
+                <p>Usuarios activos</p>
+            </div>
+            <div class="stat-item">
+                <h3>150</h3>
+                <p>Servidores</p>
+            </div>
+            <div class="stat-item">
+                <h3>99.9%</h3>
+                <p>Tiempo en línea</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="logo">
+                <img src="https://images-ext-1.discordapp.net/external/7D2zlc-7sAJM6uHhpV6AZWNXmQF8Liz61R6FZc6BcJw/%3Fsize%3D256/https/cdn.discordapp.com/avatars/1016814881112084533/2fda82311c9a9f38cf42dbebde147741.webp?format=webp&width=320&height=320" alt="Logo pequeño del Bot de Discord">
+                <h2>Discord Bot</h2>
+            </div>
+            <p class="copyright">&copy; 2025 Bot de Discord. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Modal de contacto -->
+    <div id="contactModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle"
+        tabindex="-1">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="contactModalTitle">Contacto</h3>
+                <button class="close-btn" id="closeModalBtn" aria-label="Cerrar">&times;</button>
+            </div>
+            <form id="contactForm">
+                <label for="name">Nombre:</label>
+                <input type="text" id="name" name="name" required />
+
+                <label for="email">Correo electrónico:</label>
+                <input type="email" id="email" name="email" required />
+
+                <label for="message">Mensaje:</label>
+                <textarea id="message" name="message" rows="4" required></textarea>
+
+                <input type="submit" value="Enviar" />
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Filtrado de comandos por categoría
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const commandCards = document.querySelectorAll('.command-card');
+
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Cambiar botón activo
+                categoryButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const category = button.getAttribute('data-category');
+
+                commandCards.forEach(card => {
+                    if (category === 'all') {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = card.getAttribute('data-category') === category ? 'block' : 'none';
+                    }
+                });
+            });
+        });
+
+        // Modal contacto
+        const contactBtn = document.getElementById('contactBtn');
+        const contactModal = document.getElementById('contactModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        contactBtn.addEventListener('click', () => {
+            contactModal.style.display = 'flex';
+            contactModal.focus();
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            contactModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === contactModal) {
+                contactModal.style.display = 'none';
+            }
+        });
+
+        // Opcional: Envío del formulario (solo ejemplo)
+        const contactForm = document.getElementById('contactForm');
+        contactForm.addEventListener('submit', e => {
+            e.preventDefault();
+            alert('Mensaje enviado, gracias por contactarnos.');
+            contactModal.style.display = 'none';
+            contactForm.reset();
+        });
+    </script>
+</body>
+
+</html>
