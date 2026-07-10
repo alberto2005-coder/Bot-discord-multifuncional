@@ -265,6 +265,9 @@ Cada comando sigue una estructura estándar:
 * 30 de junio de 2025: Implementado sistema completo de música con YouTube
 * 30 de junio de 2025: Añadidos comandos exclusivos para el propietario
 * 30 de junio de 2025: Implementadas funciones para reinicio y apagado seguro
+* 10 de julio de 2026: Añadido sistema de persistencia de configuraciones de servidor mediante JSON (database.js)
+* 10 de julio de 2026: Implementado panel web de control y configuración interactivo (dashboard.html) con modo claro/oscuro y soporte bilingüe (español/inglés)
+* 10 de julio de 2026: Implementados comandos y controles de reproducción de música utilizando DisTube
 
 ## Preferencias del usuario
 
