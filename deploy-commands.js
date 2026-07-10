@@ -13,6 +13,7 @@ const { commands: antiRaidCommands } = require('./commands/antiraid');
 const { commands: welcomeCommands } = require('./commands/welcome');
 const { commands: giveawayCommands } = require('./commands/giveaways');
 const ownerCommands = require('./commands/owner');
+const musicCommands = require('./commands/music');
 
 // Collect all commands
 const commands = [
@@ -26,7 +27,8 @@ const commands = [
     ...antiRaidCommands,
     ...welcomeCommands,
     ...giveawayCommands,
-    ...ownerCommands
+    ...ownerCommands,
+    ...musicCommands
 ].map(command => command.data.toJSON());
 
 // Construct and prepare an instance of the REST module
