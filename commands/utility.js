@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require('discord.js');
 
 const utilityCommands = [
     {
@@ -126,6 +126,103 @@ const utilityCommands = [
             await interaction.reply({ embeds: [infoEmbed] });
         },
     },
+    {
+        data: new SlashCommandBuilder()
+            .setName('embed')
+            .setDescription('Crea un mensaje embed personalizado utilizando un formulario interactivo')
+            .addChannelOption(option => 
+                option.setName('canal')
+                    .setDescription('El canal donde se enviará el embed')
+                    .setRequired(false)
+            ),
+        async execute(interaction) {
+            if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
+                return interaction.reply({ content: '❌ No tienes permisos para usar este comando.', ephemeral: true });
+            }
+
+            const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
+            
+            const modal = new ModalBuilder()
+                .setTitle('Constructor de Embeds');
+
+            const titleInput = new TextInputBuilder()
+                .setCustomId('embed_title')
+                .setLabel('Título del Embed')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Escribe el título aquí...')
+                .setRequired(true);
+
+            const descInput = new TextInputBuilder()
+                .setCustomId('embed_desc')
+                .setLabel('Descripción / Contenido')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Escribe el cuerpo del mensaje embed...')
+                .setRequired(true);
+
+            const colorInput = new TextInputBuilder()
+                .setCustomId('embed_color')
+                .setLabel('Color en Hexadecimal')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('#5865F2')
+                .setValue('#5865F2')
+                .setRequired(false);
+
+            const thumbInput = new TextInputBuilder()
+                .setCustomId('embed_thumb')
+                .setLabel('URL de la Miniatura (Opcional)')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('https://ejemplo.com/imagen.png')
+                .setRequired(false);
+
+            const targetChannel = interaction.options.getChannel('canal') || interaction.channel;
+            modal.setCustomId(`embed_builder_modal_${targetChannel.id}`);
+
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(titleInput),
+                new ActionRowBuilder().addComponents(descInput),
+                new ActionRowBuilder().addComponents(colorInput),
+                new ActionRowBuilder().addComponents(thumbInput)
+            );
+
+            await interaction.showModal(modal);
+        }
+    },
+    {
+        data: new SlashCommandBuilder()
+            .setName('serverstats')
+            .setDescription('Muestra estadísticas avanzadas y detalladas del servidor actual'),
+        async execute(interaction) {
+            const { guild } = interaction;
+            const client = interaction.client;
+            
+            const totalMembers = guild.memberCount;
+            const botCount = guild.members.cache.filter(m => m.user.bot).size;
+            const humanCount = totalMembers - botCount;
+            
+            const channels = guild.channels.cache;
+            const textChannels = channels.filter(c => c.type === 0).size;
+            const voiceChannels = channels.filter(c => c.type === 2).size;
+            const categories = channels.filter(c => c.type === 4).size;
+            
+            const roleCount = guild.roles.cache.size;
+            const boosterCount = guild.premiumSubscriptionCount || 0;
+            const boostLevel = guild.premiumTier;
+            
+            const statsEmbed = new EmbedBuilder()
+                .setColor('#5865F2')
+                .setTitle(`📊 Estadísticas de ${guild.name}`)
+                .setThumbnail(guild.iconURL({ dynamic: true, size: 256 }) || client.user.displayAvatarURL())
+                .addFields(
+                    { name: '👥 Miembros', value: `Total: **${totalMembers}**\n👤 Humanos: **${humanCount}**\n🤖 Bots: **${botCount}**`, inline: true },
+                    { name: '💬 Canales', value: `Total: **${channels.size}**\n📝 Texto: **${textChannels}**\n🔊 Voz: **${voiceChannels}**\n📁 Categorías: **${categories}**`, inline: true },
+                    { name: '🛡️ Seguridad', value: `Nivel de Verif: **${guild.verificationLevel}**\nRoles: **${roleCount}**\nBoosters: **${boosterCount}** (Nivel ${boostLevel})`, inline: true }
+                )
+                .setFooter({ text: `ID del Servidor: ${guild.id}` })
+                .setTimestamp();
+                
+            await interaction.reply({ embeds: [statsEmbed] });
+        }
+    }
 ];
 
 module.exports = utilityCommands;

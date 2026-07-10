@@ -155,6 +155,40 @@ client.on(Events.InteractionCreate, async interaction => {
             }
         }
     }
+    
+    // Handle modal submissions
+    else if (interaction.isModalSubmit()) {
+        if (interaction.customId.startsWith('embed_builder_modal_')) {
+            const channelId = interaction.customId.split('_').pop();
+            const title = interaction.fields.getTextInputValue('embed_title');
+            const description = interaction.fields.getTextInputValue('embed_desc');
+            const color = interaction.fields.getTextInputValue('embed_color') || '#5865F2';
+            const thumbnail = interaction.fields.getTextInputValue('embed_thumb');
+
+            const channel = interaction.guild.channels.cache.get(channelId);
+            if (!channel) {
+                return interaction.reply({ content: '❌ El canal especificado no existe o no es accesible.', flags: [MessageFlags.Ephemeral] });
+            }
+
+            const customEmbed = new EmbedBuilder()
+                .setTitle(title)
+                .setDescription(description)
+                .setColor(color)
+                .setTimestamp();
+
+            if (thumbnail && thumbnail.startsWith('http')) {
+                customEmbed.setThumbnail(thumbnail);
+            }
+
+            try {
+                await channel.send({ embeds: [customEmbed] });
+                await interaction.reply({ content: `✅ ¡Embed enviado con éxito al canal <#${channelId}>!`, flags: [MessageFlags.Ephemeral] });
+            } catch (err) {
+                console.error(err);
+                await interaction.reply({ content: '❌ Hubo un error al intentar enviar el embed. Verifica que el color sea hexadecimal válido.', flags: [MessageFlags.Ephemeral] });
+            }
+        }
+    }
 });
 
 // Handle new member joins
