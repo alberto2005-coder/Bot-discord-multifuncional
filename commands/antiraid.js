@@ -1,7 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } = require('discord.js');
-
-// Sistema de configuración antiraid (en memoria - en producción usarías una base de datos)
-const antiRaidSettings = new Map();
+const { getAntiRaidSettings, saveAntiRaidSettings } = require('../database');
 
 const antiRaidCommands = [
     {
@@ -11,14 +9,7 @@ const antiRaidCommands = [
             .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
         async execute(interaction) {
             const guildId = interaction.guild.id;
-            const settings = antiRaidSettings.get(guildId) || {
-                antiLinks: false,
-                antiEveryone: false,
-                antiSpam: false,
-                maxMentions: 3,
-                antiInvites: false,
-                autoMod: false
-            };
+            const settings = getAntiRaidSettings(guildId);
 
             const statusEmoji = (enabled) => enabled ? '✅' : '❌';
             
@@ -88,17 +79,10 @@ const antiRaidCommands = [
             const limit = interaction.options.getInteger('limite');
             const guildId = interaction.guild.id;
             
-            const settings = antiRaidSettings.get(guildId) || {
-                antiLinks: false,
-                antiEveryone: false,
-                antiSpam: false,
-                maxMentions: 3,
-                antiInvites: false,
-                autoMod: false
-            };
+            const settings = getAntiRaidSettings(guildId);
             
             settings.maxMentions = limit;
-            antiRaidSettings.set(guildId, settings);
+            saveAntiRaidSettings(guildId, settings);
 
             const successEmbed = new EmbedBuilder()
                 .setColor('#00FF00')
@@ -247,23 +231,16 @@ const antiRaidCommands = [
 ];
 
 // Funciones para obtener y actualizar configuraciones antiraid
-function getAntiRaidSettings(guildId) {
-    return antiRaidSettings.get(guildId) || {
-        antiLinks: false,
-        antiEveryone: false,
-        antiSpam: false,
-        maxMentions: 3,
-        antiInvites: false,
-        autoMod: false
-    };
+function getAntiRaidSettingsHelper(guildId) {
+    return getAntiRaidSettings(guildId);
 }
 
-function updateAntiRaidSettings(guildId, settings) {
-    antiRaidSettings.set(guildId, settings);
+function updateAntiRaidSettingsHelper(guildId, settings) {
+    saveAntiRaidSettings(guildId, settings);
 }
 
 module.exports = { 
     commands: antiRaidCommands, 
-    getAntiRaidSettings, 
-    updateAntiRaidSettings 
+    getAntiRaidSettings: getAntiRaidSettingsHelper, 
+    updateAntiRaidSettings: updateAntiRaidSettingsHelper 
 };

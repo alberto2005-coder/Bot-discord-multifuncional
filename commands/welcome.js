@@ -1,7 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, ChannelType } = require('discord.js');
-
-// Sistema de configuración de bienvenidas y despedidas (en memoria)
-const welcomeSettings = new Map();
+const { getWelcomeSettings, saveWelcomeSettings } = require('../database');
 
 const welcomeCommands = [
     {
@@ -39,14 +37,14 @@ const welcomeCommands = [
             }
             
             const guildId = interaction.guild.id;
-            const settings = welcomeSettings.get(guildId) || {};
+            const settings = getWelcomeSettings(guildId);
             
             settings.welcomeEnabled = true;
             settings.welcomeChannel = channel.id;
             settings.welcomeMessage = customMessage;
             settings.welcomeColor = color;
             
-            welcomeSettings.set(guildId, settings);
+            saveWelcomeSettings(guildId, settings);
             
             const setupEmbed = new EmbedBuilder()
                 .setColor('#00FF00')
@@ -98,14 +96,14 @@ const welcomeCommands = [
             }
             
             const guildId = interaction.guild.id;
-            const settings = welcomeSettings.get(guildId) || {};
+            const settings = getWelcomeSettings(guildId);
             
             settings.goodbyeEnabled = true;
             settings.goodbyeChannel = channel.id;
             settings.goodbyeMessage = customMessage;
             settings.goodbyeColor = color;
             
-            welcomeSettings.set(guildId, settings);
+            saveWelcomeSettings(guildId, settings);
             
             const setupEmbed = new EmbedBuilder()
                 .setColor('#FF6B6B')
@@ -129,7 +127,7 @@ const welcomeCommands = [
             .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
         async execute(interaction) {
             const guildId = interaction.guild.id;
-            const settings = welcomeSettings.get(guildId) || {};
+            const settings = getWelcomeSettings(guildId);
             
             const statusEmbed = new EmbedBuilder()
                 .setColor('#7289DA')
@@ -173,10 +171,10 @@ const welcomeCommands = [
             .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
         async execute(interaction) {
             const guildId = interaction.guild.id;
-            const settings = welcomeSettings.get(guildId) || {};
+            const settings = getWelcomeSettings(guildId);
             
             settings.welcomeEnabled = false;
-            welcomeSettings.set(guildId, settings);
+            saveWelcomeSettings(guildId, settings);
             
             const disableEmbed = new EmbedBuilder()
                 .setColor('#FF9900')
@@ -195,10 +193,10 @@ const welcomeCommands = [
             .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
         async execute(interaction) {
             const guildId = interaction.guild.id;
-            const settings = welcomeSettings.get(guildId) || {};
+            const settings = getWelcomeSettings(guildId);
             
             settings.goodbyeEnabled = false;
-            welcomeSettings.set(guildId, settings);
+            saveWelcomeSettings(guildId, settings);
             
             const disableEmbed = new EmbedBuilder()
                 .setColor('#FF9900')
@@ -217,7 +215,7 @@ const welcomeCommands = [
             .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
         async execute(interaction) {
             const guildId = interaction.guild.id;
-            const settings = welcomeSettings.get(guildId) || {};
+            const settings = getWelcomeSettings(guildId);
             
             if (!settings.welcomeEnabled) {
                 const errorEmbed = new EmbedBuilder()
@@ -264,11 +262,6 @@ const welcomeCommands = [
         },
     }
 ];
-
-// Funciones para obtener configuraciones
-function getWelcomeSettings(guildId) {
-    return welcomeSettings.get(guildId) || {};
-}
 
 module.exports = { 
     commands: welcomeCommands, 
