@@ -1,5 +1,6 @@
 const { Client, GatewayIntentBits, Collection, Events, EmbedBuilder, PermissionsBitField, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require('discord.js');
 require('dotenv').config();
+const { DisTube } = require('distube');
 
 // Create a new client instance
 const client = new Client({
@@ -8,13 +9,43 @@ const client = new Client({
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildVoiceStates,
     ]
+});
+
+// Initialize DisTube
+client.distube = new DisTube(client, {
+    emitNewSongOnly: true
+});
+
+// Basic DisTube events
+client.distube.on('playSong', (queue, song) => {
+    try {
+        queue.textChannel.send(`🎶 Reproduciendo ahora: **${song.name}** - \`${song.formattedDuration}\`\nPedido por: ${song.user}`);
+    } catch (err) {
+        console.error(err);
+    }
+});
+
+client.distube.on('addSong', (queue, song) => {
+    try {
+        queue.textChannel.send(`✅ Añadido a la cola: **${song.name}** - \`${song.formattedDuration}\` por ${song.user}`);
+    } catch (err) {
+        console.error(err);
+    }
+});
+
+client.distube.on('error', (channel, error) => {
+    console.error('DisTube Error:', error);
+    try {
+        if (channel) channel.send('❌ Ocurrió un error con el reproductor de música.');
+    } catch (err) {
+        console.error(err);
+    }
 });
 
 // Create a collection to store commands
 client.commands = new Collection();
-
-
 
 // Import command files
 const moderationCommands = require('./commands/moderation');
@@ -28,6 +59,7 @@ const { commands: antiRaidCommands, getAntiRaidSettings, updateAntiRaidSettings 
 const { commands: welcomeCommands, getWelcomeSettings } = require('./commands/welcome');
 const { commands: giveawayCommands, handleGiveawayJoin } = require('./commands/giveaways');
 const ownerCommands = require('./commands/owner');
+const musicCommands = require('./commands/music');
 
 // Add commands to the collection
 const allCommands = [
@@ -41,7 +73,8 @@ const allCommands = [
     ...antiRaidCommands,
     ...welcomeCommands,
     ...giveawayCommands,
-    ...ownerCommands
+    ...ownerCommands,
+    ...musicCommands
 ];
 
 allCommands.forEach(command => {
@@ -549,14 +582,8 @@ client.on(Events.MessageCreate, async message => {
     }
 });
 
-// Log in to Discord with your client's token
 // Music button handler
 async function handleMusicButton(interaction) {
-    const { getVoiceConnection } = require('@discordjs/voice');
-    
-    // Importar funciones necesarias de music.js
-    const musicQueues = require('./commands/music');
-    
     const member = interaction.member;
     const voiceChannel = member.voice.channel;
     
@@ -567,75 +594,128 @@ async function handleMusicButton(interaction) {
         });
     }
     
-    // Obtener la cola de música (necesitamos acceso a la clase MusicQueue)
-    const connection = getVoiceConnection(interaction.guild.id);
-    if (!connection) {
-        return await interaction.reply({
-            content: '❌ No hay música reproduciéndose actualmente.',
-            flags: [MessageFlags.Ephemeral]
-        });
-    }
-    
     let responseEmbed;
     
     try {
         switch (interaction.customId) {
-            case 'music_pause':
-                // Toggle pause/resume
-                responseEmbed = new EmbedBuilder()
-                    .setColor('#FFA500')
-                    .setTitle('⏸️ Control de Música')
-                    .setDescription('Función de pausa/reanudar temporalmente en desarrollo.')
-                    .setTimestamp()
-                    .setFooter({ text: 'Creado por eldestructor7614' });
-                break;
-                
-            case 'music_skip':
-                responseEmbed = new EmbedBuilder()
-                    .setColor('#FFA500')
-                    .setTitle('⏭️ Canción Saltada')
-                    .setDescription('Reproduciendo la siguiente canción...')
-                    .setTimestamp()
-                    .setFooter({ text: 'Creado por eldestructor7614' });
-                break;
-                
-            case 'music_stop':
-                if (connection) {
-                    connection.destroy();
+            case 'music_pause': {
+                const queuePause = client.distube.getQueue(interaction.guild.id);
+                if (!queuePause) {
+                    responseEmbed = new EmbedBuilder()
+                        .setColor('#FF0000')
+                        .setTitle('❌ Error')
+                        .setDescription('No hay canciones en la cola.');
+                    break;
                 }
+                if (queuePause.paused) {
+                    queuePause.resume();
+                    responseEmbed = new EmbedBuilder()
+                        .setColor('#00FF00')
+                        .setTitle('▶️ Música Reanudada')
+                        .setDescription('La música ha sido reanudada exitosamente.')
+                        .setTimestamp();
+                } else {
+                    queuePause.pause();
+                    responseEmbed = new EmbedBuilder()
+                        .setColor('#FFA500')
+                        .setTitle('⏸️ Música Pausada')
+                        .setDescription('La música ha sido pausada.')
+                        .setTimestamp();
+                }
+                break;
+            }
+                
+            case 'music_skip': {
+                const queueSkip = client.distube.getQueue(interaction.guild.id);
+                if (!queueSkip) {
+                    responseEmbed = new EmbedBuilder()
+                        .setColor('#FF0000')
+                        .setTitle('❌ Error')
+                        .setDescription('No hay canciones en la cola.');
+                    break;
+                }
+                try {
+                    await queueSkip.skip();
+                    responseEmbed = new EmbedBuilder()
+                        .setColor('#00FF00')
+                        .setTitle('⏭️ Canción Saltada')
+                        .setDescription('Reproduciendo la siguiente canción...')
+                        .setTimestamp();
+                } catch (e) {
+                    await queueSkip.stop();
+                    responseEmbed = new EmbedBuilder()
+                        .setColor('#FFA500')
+                        .setTitle('⏭️ Cola vacía')
+                        .setDescription('No hay más canciones en la cola. Bot desconectado.')
+                        .setTimestamp();
+                }
+                break;
+            }
+                
+            case 'music_stop': {
+                const queueStop = client.distube.getQueue(interaction.guild.id);
+                if (!queueStop) {
+                    responseEmbed = new EmbedBuilder()
+                        .setColor('#FF0000')
+                        .setTitle('❌ Error')
+                        .setDescription('No hay canciones en la cola.');
+                    break;
+                }
+                await queueStop.stop();
                 responseEmbed = new EmbedBuilder()
                     .setColor('#FF0000')
                     .setTitle('⏹️ Música Detenida')
                     .setDescription('La música se ha detenido y el bot se ha desconectado.')
-                    .setTimestamp()
-                    .setFooter({ text: 'Creado por eldestructor7614' });
+                    .setTimestamp();
                 break;
+            }
                 
-            case 'music_loop':
+            case 'music_loop': {
+                const queueLoop = client.distube.getQueue(interaction.guild.id);
+                if (!queueLoop) {
+                    responseEmbed = new EmbedBuilder()
+                        .setColor('#FF0000')
+                        .setTitle('❌ Error')
+                        .setDescription('No hay canciones en la cola.');
+                    break;
+                }
+                const newMode = queueLoop.setRepeatMode(queueLoop.repeatMode === 0 ? 1 : 0);
                 responseEmbed = new EmbedBuilder()
                     .setColor('#00FF00')
                     .setTitle('🔁 Modo de Repetición')
-                    .setDescription('Función de repetición temporalmente en desarrollo.')
-                    .setTimestamp()
-                    .setFooter({ text: 'Creado por eldestructor7614' });
+                    .setDescription(newMode === 1 ? 'Repetición activada para la canción actual.' : 'Repetición desactivada.')
+                    .setTimestamp();
                 break;
+            }
                 
-            case 'music_queue':
+            case 'music_queue': {
+                const queueShow = client.distube.getQueue(interaction.guild.id);
+                if (!queueShow) {
+                    responseEmbed = new EmbedBuilder()
+                        .setColor('#FF0000')
+                        .setTitle('❌ Error')
+                        .setDescription('No hay canciones en la cola.');
+                    break;
+                }
+                const qList = queueShow.songs
+                    .map((song, i) => `${i === 0 ? '▶️' : `${i}.`} ${song.name} - \`${song.formattedDuration}\``)
+                    .slice(0, 5)
+                    .join('\n');
                 responseEmbed = new EmbedBuilder()
                     .setColor('#0099FF')
-                    .setTitle('📋 Cola de Música')
-                    .setDescription('Usa el comando `/queue` para ver la cola completa.')
-                    .setTimestamp()
-                    .setFooter({ text: 'Creado por eldestructor7614' });
+                    .setTitle('📋 Cola de Música (Primeras 5)')
+                    .setDescription(qList || 'No hay canciones en la cola.')
+                    .setFooter({ text: `Total de canciones: ${queueShow.songs.length}` })
+                    .setTimestamp();
                 break;
+            }
                 
             default:
                 responseEmbed = new EmbedBuilder()
                     .setColor('#FF0000')
                     .setTitle('❌ Error')
                     .setDescription('Botón no reconocido.')
-                    .setTimestamp()
-                    .setFooter({ text: 'Creado por eldestructor7614' });
+                    .setTimestamp();
         }
         
         await interaction.reply({ embeds: [responseEmbed], flags: [MessageFlags.Ephemeral] });
@@ -774,4 +854,176 @@ function checkWinnerTTT(board) {
     return board.includes('⬜') ? null : 'tie';
 }
 
-client.login(process.env.DISCORD_TOKEN);
+// Express Web Server Dashboard Configuration
+const express = require('express');
+const app = express();
+const path = require('path');
+const db = require('./database');
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve the static assets
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+// API Endpoint to get bot statistics
+app.get('/api/status', (req, res) => {
+    res.json({
+        status: client.readyAt ? 'online' : 'offline',
+        guilds: client.guilds.cache.size,
+        users: client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0),
+        ping: client.ws.ping,
+        uptime: client.uptime || 0
+    });
+});
+
+// API Endpoint to get all channels for a guild
+app.get('/api/channels', (req, res) => {
+    const guildId = req.query.guildId;
+    if (!guildId) {
+        return res.status(400).json({ error: 'Missing guildId' });
+    }
+    const guild = client.guilds.cache.get(guildId);
+    if (!guild) {
+        return res.status(404).json({ error: 'Guild not found' });
+    }
+    const textChannels = guild.channels.cache
+        .filter(c => c.type === 0) // GuildText
+        .map(c => ({ id: c.id, name: c.name }));
+    res.json(textChannels);
+});
+
+// API Endpoint to get guilds list
+app.get('/api/guilds', (req, res) => {
+    const guilds = client.guilds.cache.map(g => ({ id: g.id, name: g.name }));
+    res.json(guilds);
+});
+
+// API Endpoint to list server members
+app.get('/api/members', async (req, res) => {
+    const guildId = req.query.guildId;
+    if (!guildId) {
+        return res.status(400).json({ error: 'Missing guildId' });
+    }
+    try {
+        const guild = client.guilds.cache.get(guildId);
+        if (!guild) {
+            return res.status(404).json({ error: 'Guild not found' });
+        }
+        
+        // Fetch all members
+        const members = await guild.members.fetch();
+        const memberList = members.map(m => ({
+            id: m.id,
+            username: m.user.username,
+            nickname: m.nickname || '',
+            avatar: m.user.displayAvatarURL({ size: 128 }),
+            roles: m.roles.cache.filter(r => r.name !== '@everyone').map(r => ({ id: r.id, name: r.name, color: r.hexColor })),
+            joinedAt: m.joinedTimestamp
+        }));
+        res.json(memberList);
+    } catch (error) {
+        console.error('Error fetching members:', error);
+        res.status(500).json({ error: 'Failed to fetch members' });
+    }
+});
+
+// API Endpoint to execute moderation actions
+app.post('/api/moderation', async (req, res) => {
+    const { guildId, action, userId, reason } = req.body;
+    if (!guildId || !action || !userId) {
+        return res.status(400).json({ error: 'Missing required parameters' });
+    }
+    
+    try {
+        const guild = client.guilds.cache.get(guildId);
+        if (!guild) {
+            return res.status(404).json({ error: 'Guild not found' });
+        }
+        
+        const targetMember = await guild.members.fetch(userId).catch(() => null);
+        if (!targetMember) {
+            return res.status(404).json({ error: 'Member not found' });
+        }
+        
+        const finalReason = reason || 'Acción ejecutada desde el Panel Web';
+        
+        if (action === 'kick') {
+            if (!targetMember.kickable) {
+                return res.status(403).json({ error: 'No tengo permisos para expulsar a este usuario.' });
+            }
+            await targetMember.kick(finalReason);
+            return res.json({ success: true, message: `Usuario ${targetMember.user.username} expulsado.` });
+        }
+        
+        if (action === 'ban') {
+            if (!targetMember.bannable) {
+                return res.status(403).json({ error: 'No tengo permisos para banear a este usuario.' });
+            }
+            await targetMember.ban({ reason: finalReason });
+            return res.json({ success: true, message: `Usuario ${targetMember.user.username} baneado.` });
+        }
+        
+        if (action === 'warn') {
+            try {
+                await targetMember.send(`⚠️ Has recibido una advertencia en **${guild.name}**\nRazón: ${finalReason}`);
+            } catch (err) {
+                console.log('No se pudo enviar DM al usuario advertido:', err.message);
+            }
+            return res.json({ success: true, message: `Advertencia enviada a ${targetMember.user.username}.` });
+        }
+        
+        return res.status(400).json({ error: 'Acción no válida' });
+    } catch (error) {
+        console.error('Error executing moderation action:', error);
+        res.status(500).json({ error: 'Error al ejecutar la acción de moderación.' });
+    }
+});
+
+// API Endpoint to get current settings
+app.get('/api/settings', (req, res) => {
+    const guildId = req.query.guildId;
+    if (!guildId) {
+        return res.status(400).json({ error: 'Missing guildId' });
+    }
+    res.json(db.getGuildSettings(guildId));
+});
+
+// API Endpoint to update settings
+app.post('/api/settings', (req, res) => {
+    const { guildId, welcome, antiraid, general } = req.body;
+    if (!guildId) {
+        return res.status(400).json({ error: 'Missing guildId' });
+    }
+
+    if (welcome) {
+        db.saveWelcomeSettings(guildId, welcome);
+    }
+    if (antiraid) {
+        db.saveAntiRaidSettings(guildId, antiraid);
+    }
+    if (general) {
+        db.saveGeneralSettings(guildId, general);
+    }
+
+    res.json({ success: true, settings: db.getGuildSettings(guildId) });
+});
+
+// Start Express Dashboard
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`[Dashboard] Web interface listening on port ${PORT}`);
+});
+
+client.login(process.env.DISCORD_TOKEN).catch(err => {
+    console.error('Error al iniciar el bot de Discord:', err.message);
+    console.log('[Dashboard] El servidor web sigue en ejecución para configuración.');
+});

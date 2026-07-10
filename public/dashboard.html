@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="page_title">Configuración del Bot - Panel de Control</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Separate Stylesheet -->
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <div class="logo-area">
+                <i class="fa-brands fa-discord"></i>
+                <div>
+                    <h1 data-translate="page_title">Panel de Configuración</h1>
+                </div>
+            </div>
+            
+            <div class="actions-header">
+                <!-- Translation switch -->
+                <button class="lang-btn" id="lang-toggle-btn" onclick="toggleLanguage()">EN</button>
+                
+                <!-- Theme switch -->
+                <button class="theme-btn" onclick="toggleTheme()">
+                    <i class="fa-solid fa-moon" id="theme-icon"></i>
+                </button>
+
+                <a href="/" class="back-btn" data-translate="btn_back">
+                    <i class="fa-solid fa-arrow-left"></i> Volver a la web
+                </a>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card online" id="status-card">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-circle-dot"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 data-translate="stat_status">Estado del Bot</h3>
+                    <p id="bot-status">Conectando...</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-server"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 data-translate="stat_servers">Servidores</h3>
+                    <p id="bot-guilds">-</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 data-translate="stat_members">Miembros Totales</h3>
+                    <p id="bot-users">-</p>
+                </div>
+            </div>
+
+            <div class="stat-card ping">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-gauge-high"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 data-translate="stat_latency">Ping Latencia</h3>
+                    <p id="bot-ping">- ms</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Configuration Area -->
+        <div class="config-layout">
+            
+            <!-- Left Sidebar -->
+            <div class="sidebar">
+                <h2 data-translate="select_server"><i class="fa-solid fa-sliders"></i> Seleccionar Servidor</h2>
+                <select id="guild-select" class="guild-selector">
+                    <option value="" disabled selected data-translate="loading_servers">Cargando servidores...</option>
+                </select>
+
+                <h2 data-translate="categories">Categorías</h2>
+                <ul class="nav-tabs">
+                    <li>
+                        <button class="tab-btn active" onclick="switchTab('welcome-panel', this)">
+                            <i class="fa-solid fa-bullhorn"></i> <span data-translate="tab_welcome">Bienvenidas & Despedidas</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="tab-btn" onclick="switchTab('antiraid-panel', this)">
+                            <i class="fa-solid fa-shield-halved"></i> <span data-translate="tab_antiraid">Sistema AntiRaid</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="tab-btn" onclick="switchTab('general-panel', this)">
+                            <i class="fa-solid fa-gear"></i> <span data-translate="tab_general">Ajustes Generales</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="tab-btn" onclick="switchTab('commands-panel', this)">
+                            <i class="fa-solid fa-book"></i> <span data-translate="tab_commands">Comandos</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="tab-btn" onclick="switchTab('moderation-panel', this)">
+                            <i class="fa-solid fa-gavel"></i> <span data-translate="tab_moderation">Moderación</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main Panel -->
+            <div class="main-panel">
+                
+                <!-- Welcome/Goodbye Panel -->
+                <div id="welcome-panel" class="tab-content active">
+                    <div class="panel-header">
+                        <h2 data-translate="welcome_title">🎉 Bienvenidas y Despedidas</h2>
+                        <p data-translate="welcome_desc">Personaliza el canal y los mensajes embed de bienvenida y salida del servidor.</p>
+                    </div>
+
+                    <!-- Welcome Settings Section -->
+                    <div style="margin-bottom: 2.5rem;">
+                        <h3 style="margin-bottom: 1rem; border-left: 4px solid var(--primary); padding-left: 0.5rem;" data-translate="welcome_h3">Mensaje de Bienvenida</h3>
+                        
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <h4 data-translate="welcome_active">Activar Bienvenida</h4>
+                                <p data-translate="welcome_active_desc">Habilita los mensajes embed cuando un miembro se une al servidor.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="welcome-enabled">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="welcome-channel" data-translate="welcome_channel">Canal de Bienvenida</label>
+                            <select id="welcome-channel" class="select-input">
+                                <option value="" data-translate="select_channel">Selecciona un canal...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="welcome-message" data-translate="welcome_message">Mensaje Personalizado</label>
+                            <textarea id="welcome-message" class="input-text"></textarea>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;" data-translate="variables_desc">Puedes usar variables: {user} para mencionar al usuario, {server} para el nombre del servidor.</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-translate="embed_color">Color del Embed</label>
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="welcome-color" value="#00ff00">
+                                <span id="welcome-color-hex" style="font-family: monospace; font-weight: 600;">#00ff00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Goodbye Settings Section -->
+                    <div>
+                        <h3 style="margin-bottom: 1rem; border-left: 4px solid var(--danger); padding-left: 0.5rem;" data-translate="goodbye_h3">Mensaje de Despedida</h3>
+                        
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <h4 data-translate="goodbye_active">Activar Despedida</h4>
+                                <p data-translate="goodbye_active_desc">Habilita los mensajes embed cuando un miembro deja el servidor.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="goodbye-enabled">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="goodbye-channel" data-translate="goodbye_channel">Canal de Despedida</label>
+                            <select id="goodbye-channel" class="select-input">
+                                <option value="" data-translate="select_channel">Selecciona un canal...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="goodbye-message" data-translate="goodbye_message">Mensaje Personalizado</label>
+                            <textarea id="goodbye-message" class="input-text"></textarea>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;" data-translate="variables_desc">Puedes usar variables: {user} para el nombre de usuario, {server} para el nombre del servidor.</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-translate="embed_color">Color del Embed</label>
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="goodbye-color" value="#ff6b6b">
+                                <span id="goodbye-color-hex" style="font-family: monospace; font-weight: 600;">#ff6b6b</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-footer">
+                        <button class="btn-primary" onclick="saveSettings()">
+                            <i class="fa-solid fa-floppy-disk"></i> <span data-translate="btn_save_welcome">Guardar Bienvenidas</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- AntiRaid Panel -->
+                <div id="antiraid-panel" class="tab-content">
+                    <div class="panel-header">
+                        <h2 data-translate="antiraid_title">🛡️ Sistema de Protección AntiRaid</h2>
+                        <p data-translate="antiraid_desc">Protege tu servidor de spam masivo, invitaciones publicitarias y raids maliciosos en tiempo real.</p>
+                    </div>
+
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4 data-translate="ar_links"><i class="fa-solid fa-link" style="color: var(--primary);"></i> Bloquear Enlaces (Anti-Links)</h4>
+                            <p data-translate="ar_links_desc">Elimina automáticamente cualquier enlace enviado por usuarios normales.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="antiraid-links">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4 data-translate="ar_everyone"><i class="fa-solid fa-users-slash" style="color: var(--danger);"></i> Bloquear @everyone / @here</h4>
+                            <p data-translate="ar_everyone_desc">Evita menciones masivas a todos los usuarios del servidor.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="antiraid-everyone">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4 data-translate="ar_spam"><i class="fa-solid fa-message" style="color: var(--warning);"></i> Protección Anti-Spam</h4>
+                            <p data-translate="ar_spam_desc">Detecta y bloquea mensajes repetitivos en un corto período de tiempo.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="antiraid-spam">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4 data-translate="ar_invites"><i class="fa-solid fa-id-card" style="color: var(--primary);"></i> Bloquear Invitaciones (Anti-Invites)</h4>
+                            <p data-translate="ar_invites_desc">Elimina automáticamente invitaciones a otros servidores de Discord.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="antiraid-invites">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4 data-translate="ar_automod"><i class="fa-solid fa-robot" style="color: var(--success);"></i> Auto-Moderación Activa</h4>
+                            <p data-translate="ar_automod_desc">Permite al bot silenciar o expulsar a infractores recurrentes automáticamente.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="antiraid-automod">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="antiraid-mentions" data-translate="ar_mentions">Mapeo Máximo de Menciones</label>
+                        <input type="number" id="antiraid-mentions" class="input-text" min="1" max="10" value="3">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;" data-translate="ar_mentions_desc">Cantidad máxima de menciones permitidas en un solo mensaje antes de actuar (1-10).</p>
+                    </div>
+
+                    <div class="panel-footer">
+                        <button class="btn-primary" onclick="saveSettings()">
+                            <i class="fa-solid fa-floppy-disk"></i> <span data-translate="btn_save_antiraid">Guardar AntiRaid</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- General Panel -->
+                <div id="general-panel" class="tab-content">
+                    <div class="panel-header">
+                        <h2 data-translate="general_title">⚙️ Ajustes Generales del Bot</h2>
+                        <p data-translate="general_desc">Configura los parámetros globales de funcionamiento de tu bot en este servidor.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="general-prefix" data-translate="general_prefix">Prefijo del Bot</label>
+                        <input type="text" id="general-prefix" class="input-text" placeholder="!">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;" data-translate="general_prefix_desc">El prefijo utilizado para los comandos de texto normales del bot (por defecto es !).</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="general-owner" data-translate="general_owner">ID del Propietario</label>
+                        <input type="text" id="general-owner" class="input-text" placeholder="ID de Discord del desarrollador">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;" data-translate="general_owner_desc">ID numérica de Discord del dueño del bot para permitir la ejecución de comandos especiales.</p>
+                    </div>
+
+                    <div class="panel-footer">
+                        <button class="btn-primary" onclick="saveSettings()">
+                            <i class="fa-solid fa-floppy-disk"></i> <span data-translate="btn_save_general">Guardar Ajustes</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Commands Panel -->
+                <div id="commands-panel" class="tab-content">
+                    <div class="panel-header">
+                        <h2 data-translate="commands_title">📚 Directorio de Comandos del Bot</h2>
+                        <p data-translate="commands_desc">Navega y comprende las instrucciones y sintaxis de todos los comandos de barra diagonal.</p>
+                    </div>
+
+                    <div class="commands-categories">
+                        <button class="category-pill active" onclick="filterCommands('all', this)" data-translate="cmd_cat_all">Todos</button>
+                        <button class="category-pill" onclick="filterCommands('moderation', this)" data-translate="cmd_cat_mod">Moderación</button>
+                        <button class="category-pill" onclick="filterCommands('music', this)" data-translate="cmd_cat_music">Música</button>
+                        <button class="category-pill" onclick="filterCommands('fun', this)" data-translate="cmd_cat_fun">Diversión</button>
+                        <button class="category-pill" onclick="filterCommands('tickets', this)" data-translate="cmd_cat_tickets">Tickets</button>
+                        <button class="category-pill" onclick="filterCommands('utility', this)" data-translate="cmd_cat_util">Utilidad</button>
+                    </div>
+
+                    <div id="commands-list">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Moderation Panel -->
+                <div id="moderation-panel" class="tab-content">
+                    <div class="panel-header">
+                        <h2 data-translate="mod_title">🛡️ Moderación de Miembros</h2>
+                        <p data-translate="mod_desc">Busca a cualquier miembro del servidor y ejecuta acciones disciplinarias en tiempo real.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="member-search-input" data-translate="mod_search">Buscar Miembro</label>
+                        <input type="text" id="member-search-input" class="input-text" placeholder="Buscar por nombre de usuario o ID..." oninput="filterMembersList()">
+                    </div>
+
+                    <div id="members-list-container" style="max-height: 500px; overflow-y: auto; margin-top: 1rem; border-radius: 12px;">
+                        <!-- Members will be loaded here dynamically -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Moderation Action Modal -->
+            <div id="moderation-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                <div class="main-panel" style="max-width: 500px; width: 90%; min-height: auto;">
+                    <div class="panel-header">
+                        <h2 id="mod-modal-title">Confirmar Acción</h2>
+                        <p id="mod-modal-desc">¿Estás seguro de que quieres realizar esta acción?</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mod-modal-reason">Razón / Motivo</label>
+                        <textarea id="mod-modal-reason" class="input-text" placeholder="Escribe la razón aquí..."></textarea>
+                    </div>
+                    
+                    <div class="panel-footer" style="margin-top: 1.5rem; border-top: none;">
+                        <button class="btn-primary" style="background: var(--danger);" onclick="executeModerationAction()">Confirmar</button>
+                        <button class="btn-primary" style="background: var(--toggle-bg);" onclick="closeModerationModal()">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Alert Dialog -->
+    <div id="toast" class="alert">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-message">Configuraciones guardadas exitosamente</span>
+    </div>
+
+    <!-- Separate Javascript Logic -->
+    <script src="/js/dashboard.js" defer></script>
+</body>
+</html>
