@@ -72,7 +72,32 @@ const translations = {
         mod_search: "Buscar Miembro",
         toast_saved: "Configuraciones guardadas exitosamente",
         toast_error: "Ocurrió un error al guardar.",
-        toast_conn_error: "Error de conexión al guardar."
+        toast_conn_error: "Error de conexión al guardar.",
+        tab_xp: "Niveles y XP",
+        tab_tools: "Tickets y Embeds",
+        tab_roles: "Roles",
+        xp_title: "📈 Sistema de Niveles y XP",
+        xp_desc: "Configura la cantidad de experiencia que los usuarios ganan por enviar mensajes y las alertas de nivel.",
+        xp_levelup: "Anunciar Subidas de Nivel",
+        xp_levelup_desc: "El bot enviará un mensaje Embed al canal cuando un usuario suba de nivel.",
+        xp_min: "XP Mínimo por mensaje",
+        xp_max: "XP Máximo por mensaje",
+        xp_range_desc: "Por cada mensaje, el bot otorgará una cantidad de XP aleatoria entre el mínimo y máximo establecido. Hay un tiempo de espera de 1 minuto entre mensajes para evitar abusos.",
+        btn_save_xp: "Guardar Ajustes de XP",
+        tools_title: "🛠️ Herramientas de Administrador",
+        tools_desc: "Envía paneles interactivos y mensajes de anuncios a tu servidor al instante.",
+        tools_ticket: "Desplegar Panel de Tickets",
+        tools_ticket_channel: "Canal Destino",
+        btn_send_ticket: "Enviar Panel de Tickets",
+        tools_embed: "Creador de Embeds",
+        tools_embed_channel: "Canal Destino",
+        tools_embed_title: "Título del Mensaje",
+        tools_embed_desc: "Descripción (Contenido)",
+        tools_embed_color: "Color",
+        tools_embed_image: "URL de Imagen (Opcional)",
+        btn_send_embed: "Enviar Embed",
+        roles_title: "🎭 Roles del Servidor",
+        roles_desc: "Vista general de todos los roles creados en tu servidor organizados por jerarquía."
     },
     en: {
         page_title: "Bot Configuration Panel",
@@ -140,7 +165,32 @@ const translations = {
         mod_search: "Search Member",
         toast_saved: "Settings successfully saved",
         toast_error: "An error occurred while saving.",
-        toast_conn_error: "Connection failure while saving."
+        toast_conn_error: "Connection failure while saving.",
+        tab_xp: "Levels & XP",
+        tab_tools: "Tickets & Embeds",
+        tab_roles: "Roles",
+        xp_title: "📈 Leveling & XP System",
+        xp_desc: "Configure the amount of experience users gain for sending messages and level up alerts.",
+        xp_levelup: "Announce Level Ups",
+        xp_levelup_desc: "The bot will send an Embed message to the channel when a user levels up.",
+        xp_min: "Minimum XP per message",
+        xp_max: "Maximum XP per message",
+        xp_range_desc: "For each message, the bot will grant a random amount of XP between the minimum and maximum set. There is a 1-minute cooldown between messages to prevent abuse.",
+        btn_save_xp: "Save XP Settings",
+        tools_title: "🛠️ Administrator Tools",
+        tools_desc: "Send interactive panels and announcement messages to your server instantly.",
+        tools_ticket: "Deploy Ticket Panel",
+        tools_ticket_channel: "Destination Channel",
+        btn_send_ticket: "Send Ticket Panel",
+        tools_embed: "Embed Builder",
+        tools_embed_channel: "Destination Channel",
+        tools_embed_title: "Message Title",
+        tools_embed_desc: "Description (Content)",
+        tools_embed_color: "Color",
+        tools_embed_image: "Image URL (Optional)",
+        btn_send_embed: "Send Embed",
+        roles_title: "🎭 Server Roles",
+        roles_desc: "Overview of all roles created on your server organized by hierarchy."
     }
 };
 
@@ -458,31 +508,26 @@ function fetchChannels(guildId) {
     fetch(`/api/channels?guildId=${guildId}`)
         .then(res => res.json())
         .then(channels => {
-            const welcomeSelect = document.getElementById('welcome-channel');
-            const goodbyeSelect = document.getElementById('goodbye-channel');
+            const selects = [
+                document.getElementById('welcome-channel'),
+                document.getElementById('goodbye-channel'),
+                document.getElementById('ticket-channel'),
+                document.getElementById('embed-channel')
+            ];
             
-            // Save previous values
-            const prevWelcome = welcomeSelect.value;
-            const prevGoodbye = goodbyeSelect.value;
+            const prevValues = selects.map(s => s ? s.value : "");
             
-            welcomeSelect.innerHTML = `<option value="">${translations[currentLang].select_channel}</option>`;
-            goodbyeSelect.innerHTML = `<option value="">${translations[currentLang].select_channel}</option>`;
-            
-            channels.forEach(ch => {
-                const wOpt = document.createElement('option');
-                wOpt.value = ch.id;
-                wOpt.innerText = '#' + ch.name;
-                welcomeSelect.appendChild(wOpt);
-
-                const gOpt = document.createElement('option');
-                gOpt.value = ch.id;
-                gOpt.innerText = '#' + ch.name;
-                goodbyeSelect.appendChild(gOpt);
+            selects.forEach((select, index) => {
+                if (!select) return;
+                select.innerHTML = `<option value="">${translations[currentLang].select_channel}</option>`;
+                channels.forEach(ch => {
+                    const opt = document.createElement('option');
+                    opt.value = ch.id;
+                    opt.innerText = '#' + ch.name;
+                    select.appendChild(opt);
+                });
+                select.value = prevValues[index];
             });
-            
-            // Restore selection if exists
-            welcomeSelect.value = prevWelcome;
-            goodbyeSelect.value = prevGoodbye;
         })
         .catch(err => console.error('Error fetching channels:', err));
 }
@@ -522,6 +567,9 @@ function fetchSettings(guildId) {
             // General fields
             document.getElementById('general-prefix').value = g.prefix || "!";
             document.getElementById('general-owner').value = g.ownerId || "";
+            document.getElementById('general-levelup').checked = g.levelUpMessage !== false;
+            document.getElementById('general-xp-min').value = g.xpMin || 15;
+            document.getElementById('general-xp-max').value = g.xpMax || 25;
         })
         .catch(err => console.error('Error loading settings:', err));
 }
@@ -555,7 +603,10 @@ function saveSettings() {
         },
         general: {
             prefix: document.getElementById('general-prefix').value || "!",
-            ownerId: document.getElementById('general-owner').value || ""
+            ownerId: document.getElementById('general-owner').value || "",
+            levelUpMessage: document.getElementById('general-levelup').checked,
+            xpMin: parseInt(document.getElementById('general-xp-min').value) || 15,
+            xpMax: parseInt(document.getElementById('general-xp-max').value) || 25
         }
     };
 
@@ -620,6 +671,115 @@ document.getElementById('welcome-color').addEventListener('input', function(e) {
 document.getElementById('goodbye-color').addEventListener('input', function(e) {
     document.getElementById('goodbye-color-hex').innerText = e.target.value;
 });
+
+// Load Roles
+function loadServerRoles() {
+    if (!currentGuildId) return;
+    const container = document.getElementById('roles-list-container');
+    container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 2rem;">Cargando roles...</div>`;
+    
+    fetch(`/api/roles?guildId=${currentGuildId}`)
+        .then(res => res.json())
+        .then(roles => {
+            if (roles.error) {
+                container.innerHTML = `<div style="text-align: center; color: var(--danger); padding: 2rem;">${roles.error}</div>`;
+                return;
+            }
+            if (roles.length === 0) {
+                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 2rem;">No hay roles para mostrar.</div>`;
+                return;
+            }
+            container.innerHTML = "";
+            roles.forEach(role => {
+                const roleDiv = document.createElement('div');
+                roleDiv.style.display = 'flex';
+                roleDiv.style.alignItems = 'center';
+                roleDiv.style.justifyContent = 'space-between';
+                roleDiv.style.padding = '0.75rem 1rem';
+                roleDiv.style.background = 'var(--card-bg)';
+                roleDiv.style.borderRadius = '8px';
+                
+                roleDiv.innerHTML = `
+                    <div style="display: flex; alignItems: center; gap: 0.5rem;">
+                        <div style="width: 15px; height: 15px; border-radius: 50%; background: ${role.color};"></div>
+                        <span style="font-weight: 600;">${role.name}</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">
+                        Posición: ${role.position} • ID: ${role.id}
+                    </div>
+                `;
+                container.appendChild(roleDiv);
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            container.innerHTML = `<div style="text-align: center; color: var(--danger); padding: 2rem;">Error al cargar los roles.</div>`;
+        });
+}
+
+// Send Ticket Panel
+function sendTicketPanel() {
+    if (!currentGuildId) return;
+    const channelId = document.getElementById('ticket-channel').value;
+    if (!channelId) {
+        showToast("Por favor selecciona un canal de destino.", true);
+        return;
+    }
+    
+    fetch('/api/tickets/panel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guildId: currentGuildId, channelId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message);
+        } else {
+            showToast(data.error || "Error al enviar el panel", true);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        showToast("Error de conexión", true);
+    });
+}
+
+// Send Embed
+function sendCustomEmbed() {
+    if (!currentGuildId) return;
+    const channelId = document.getElementById('embed-channel').value;
+    const title = document.getElementById('embed-title').value;
+    const desc = document.getElementById('embed-desc').value;
+    const color = document.getElementById('embed-color').value;
+    const image = document.getElementById('embed-image').value;
+    
+    if (!channelId || !title || !desc) {
+        showToast("Debes seleccionar un canal, un título y una descripción.", true);
+        return;
+    }
+    
+    fetch('/api/embeds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guildId: currentGuildId, channelId, title, description: desc, color, image })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message);
+            document.getElementById('embed-title').value = "";
+            document.getElementById('embed-desc').value = "";
+            document.getElementById('embed-image').value = "";
+        } else {
+            showToast(data.error || "Error al enviar el embed", true);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        showToast("Error de conexión", true);
+    });
+}
 
 // Initialize
 window.addEventListener('DOMContentLoaded', () => {

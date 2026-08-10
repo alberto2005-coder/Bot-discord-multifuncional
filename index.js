@@ -1,6 +1,10 @@
 const { Client, GatewayIntentBits, Collection, Events, EmbedBuilder, PermissionsBitField, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require('discord.js');
 require('dotenv').config();
 const { DisTube } = require('distube');
+const { initDatabase, getLevel, updateLevel, getGeneralSettings } = require('./database');
+
+// Inicializar la Base de Datos
+initDatabase();
 
 // Create a new client instance
 const client = new Client({
@@ -60,6 +64,8 @@ const { commands: welcomeCommands, getWelcomeSettings } = require('./commands/we
 const { commands: giveawayCommands, handleGiveawayJoin } = require('./commands/giveaways');
 const ownerCommands = require('./commands/owner');
 const musicCommands = require('./commands/music');
+const economyCommands = require('./commands/economy');
+const levelCommands = require('./commands/levels');
 
 // Add commands to the collection
 const allCommands = [
@@ -74,7 +80,9 @@ const allCommands = [
     ...welcomeCommands,
     ...giveawayCommands,
     ...ownerCommands,
-    ...musicCommands
+    ...musicCommands,
+    ...economyCommands,
+    ...levelCommands
 ];
 
 allCommands.forEach(command => {
@@ -550,8 +558,43 @@ client.on(Events.MessageCreate, async message => {
     const member = message.member;
     
     // Skip if user has admin permissions
-    if (member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
+    if (member && member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
     
+    // --- LÓGICA DE NIVELES (XP) ---
+    const now = Date.now();
+    const levelData = getLevel(message.author.id, message.guild.id);
+    const xpCooldown = 60000; // 1 minuto (en ms) para ganar XP y evitar spam
+    
+    if (now - levelData.lastMessage > xpCooldown) {
+        const generalSettings = getGeneralSettings(message.guild.id);
+        const xpMin = generalSettings.xpMin !== undefined ? generalSettings.xpMin : 15;
+        const xpMax = generalSettings.xpMax !== undefined ? generalSettings.xpMax : 25;
+        
+        const xpEarned = Math.floor(Math.random() * (xpMax - xpMin + 1)) + xpMin;
+        levelData.xp += xpEarned;
+        levelData.lastMessage = now;
+        
+        const xpNeeded = (levelData.level + 1) * 100;
+        
+        if (levelData.xp >= xpNeeded) {
+            levelData.level += 1;
+            levelData.xp = levelData.xp - xpNeeded; // Guarda el remanente
+            
+            if (generalSettings.levelUpMessage !== false) {
+                const levelUpEmbed = new EmbedBuilder()
+                    .setColor('#FFD700')
+                    .setTitle('🎉 ¡Subida de Nivel!')
+                    .setDescription(`¡Felicidades ${message.author}! Has subido al nivel **${levelData.level}** 🚀.`)
+                    .setThumbnail(message.author.displayAvatarURL());
+                    
+                message.channel.send({ embeds: [levelUpEmbed] }).catch(() => {});
+            }
+        }
+        
+        updateLevel(message.author.id, message.guild.id, levelData.xp, levelData.level, levelData.lastMessage);
+    }
+    
+    // --- LÓGICA DE ANTIRAID ---
     let shouldDelete = false;
     let reason = '';
     
@@ -1049,6 +1092,84 @@ app.post('/api/settings', (req, res) => {
     }
 
     res.json({ success: true, settings: db.getGuildSettings(guildId) });
+});
+
+// API Endpoint to get roles
+app.get('/api/roles', (req, res) => {
+    const guildId = req.query.guildId;
+    if (!guildId) return res.status(400).json({ error: 'Missing guildId' });
+    const guild = client.guilds.cache.get(guildId);
+    if (!guild) return res.status(404).json({ error: 'Guild not found' });
+    
+    const roles = guild.roles.cache
+        .filter(r => r.name !== '@everyone')
+        .sort((a, b) => b.position - a.position)
+        .map(r => ({ id: r.id, name: r.name, color: r.hexColor, position: r.position }));
+    res.json(roles);
+});
+
+// API Endpoint to send a ticket panel
+app.post('/api/tickets/panel', async (req, res) => {
+    const { guildId, channelId, title, description, color } = req.body;
+    if (!guildId || !channelId) return res.status(400).json({ error: 'Missing parameters' });
+    
+    try {
+        const guild = client.guilds.cache.get(guildId);
+        if (!guild) return res.status(404).json({ error: 'Guild not found' });
+        
+        const channel = guild.channels.cache.get(channelId);
+        if (!channel) return res.status(404).json({ error: 'Channel not found' });
+        
+        const ticketEmbed = new EmbedBuilder()
+            .setColor(color || '#0099ff')
+            .setTitle(title || '🎫 Soporte')
+            .setDescription(description || 'Haz clic en el botón de abajo para crear un ticket de soporte.')
+            .setTimestamp();
+            
+        const createButton = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('create_ticket')
+                    .setLabel('Crear Ticket')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🎫')
+            );
+            
+        await channel.send({ embeds: [ticketEmbed], components: [createButton] });
+        res.json({ success: true, message: 'Panel de tickets enviado correctamente' });
+    } catch (error) {
+        console.error('Error sending ticket panel:', error);
+        res.status(500).json({ error: 'Failed to send panel' });
+    }
+});
+
+// API Endpoint to send an embed
+app.post('/api/embeds', async (req, res) => {
+    const { guildId, channelId, title, description, color, image, footer } = req.body;
+    if (!guildId || !channelId || !title || !description) return res.status(400).json({ error: 'Missing parameters' });
+    
+    try {
+        const guild = client.guilds.cache.get(guildId);
+        if (!guild) return res.status(404).json({ error: 'Guild not found' });
+        
+        const channel = guild.channels.cache.get(channelId);
+        if (!channel) return res.status(404).json({ error: 'Channel not found' });
+        
+        const embed = new EmbedBuilder()
+            .setColor(color || '#5865F2')
+            .setTitle(title)
+            .setDescription(description)
+            .setTimestamp();
+            
+        if (image) embed.setImage(image);
+        if (footer) embed.setFooter({ text: footer });
+            
+        await channel.send({ embeds: [embed] });
+        res.json({ success: true, message: 'Embed enviado correctamente' });
+    } catch (error) {
+        console.error('Error sending embed:', error);
+        res.status(500).json({ error: 'Failed to send embed' });
+    }
 });
 
 // Start Express Dashboard

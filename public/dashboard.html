@@ -118,6 +118,21 @@
                             <i class="fa-solid fa-gavel"></i> <span data-translate="tab_moderation">Moderación</span>
                         </button>
                     </li>
+                    <li>
+                        <button class="tab-btn" onclick="switchTab('xp-panel', this)">
+                            <i class="fa-solid fa-star"></i> <span data-translate="tab_xp">Niveles y XP</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="tab-btn" onclick="switchTab('tools-panel', this)">
+                            <i class="fa-solid fa-wrench"></i> <span data-translate="tab_tools">Tickets y Embeds</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="tab-btn" onclick="switchTab('roles-panel', this)">
+                            <i class="fa-solid fa-masks-theater"></i> <span data-translate="tab_roles">Roles</span>
+                        </button>
+                    </li>
                 </ul>
             </div>
 
@@ -310,6 +325,112 @@
                         <button class="btn-primary" onclick="saveSettings()">
                             <i class="fa-solid fa-floppy-disk"></i> <span data-translate="btn_save_general">Guardar Ajustes</span>
                         </button>
+                    </div>
+                </div>
+
+                <!-- XP Panel -->
+                <div id="xp-panel" class="tab-content">
+                    <div class="panel-header">
+                        <h2 data-translate="xp_title">📈 Sistema de Niveles y XP</h2>
+                        <p data-translate="xp_desc">Configura la cantidad de experiencia que los usuarios ganan por enviar mensajes y las alertas de nivel.</p>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <h4 data-translate="xp_levelup">Anunciar Subidas de Nivel</h4>
+                            <p data-translate="xp_levelup_desc">El bot enviará un mensaje Embed al canal cuando un usuario suba de nivel.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="general-levelup">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-group" style="display: flex; gap: 1rem;">
+                        <div style="flex: 1;">
+                            <label for="general-xp-min" data-translate="xp_min">XP Mínimo por mensaje</label>
+                            <input type="number" id="general-xp-min" class="input-text" value="15" min="1" max="100">
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="general-xp-max" data-translate="xp_max">XP Máximo por mensaje</label>
+                            <input type="number" id="general-xp-max" class="input-text" value="25" min="1" max="100">
+                        </div>
+                    </div>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.5rem;" data-translate="xp_range_desc">Por cada mensaje, el bot otorgará una cantidad de XP aleatoria entre el mínimo y máximo establecido. Hay un tiempo de espera de 1 minuto entre mensajes para evitar abusos.</p>
+
+                    <div class="panel-footer">
+                        <button class="btn-primary" onclick="saveSettings()">
+                            <i class="fa-solid fa-floppy-disk"></i> <span data-translate="btn_save_xp">Guardar Ajustes de XP</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tools Panel (Tickets & Embeds) -->
+                <div id="tools-panel" class="tab-content">
+                    <div class="panel-header">
+                        <h2 data-translate="tools_title">🛠️ Herramientas de Administrador</h2>
+                        <p data-translate="tools_desc">Envía paneles interactivos y mensajes de anuncios a tu servidor al instante.</p>
+                    </div>
+                    
+                    <h3 style="margin-bottom: 1rem; border-left: 4px solid var(--primary); padding-left: 0.5rem;" data-translate="tools_ticket">Desplegar Panel de Tickets</h3>
+                    <div style="background: var(--card-bg); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                        <div class="form-group">
+                            <label for="ticket-channel" data-translate="tools_ticket_channel">Canal Destino</label>
+                            <select id="ticket-channel" class="select-input">
+                                <option value="">Selecciona un canal...</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary" onclick="sendTicketPanel()">
+                            <i class="fa-solid fa-paper-plane"></i> <span data-translate="btn_send_ticket">Enviar Panel de Tickets</span>
+                        </button>
+                    </div>
+
+                    <h3 style="margin-bottom: 1rem; border-left: 4px solid var(--success); padding-left: 0.5rem;" data-translate="tools_embed">Creador de Embeds</h3>
+                    <div style="background: var(--card-bg); padding: 1.5rem; border-radius: 12px;">
+                        <div class="form-group">
+                            <label for="embed-channel" data-translate="tools_embed_channel">Canal Destino</label>
+                            <select id="embed-channel" class="select-input">
+                                <option value="">Selecciona un canal...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="embed-title" data-translate="tools_embed_title">Título del Mensaje</label>
+                            <input type="text" id="embed-title" class="input-text" placeholder="Ej: 📣 Nuevo Anuncio">
+                        </div>
+                        <div class="form-group">
+                            <label for="embed-desc" data-translate="tools_embed_desc">Descripción (Contenido)</label>
+                            <textarea id="embed-desc" class="input-text" placeholder="Escribe el mensaje aquí..."></textarea>
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <div class="form-group" style="flex: 1;">
+                                <label for="embed-color" data-translate="tools_embed_color">Color</label>
+                                <input type="color" id="embed-color" value="#5865F2" style="width: 100%; height: 40px; border: none; border-radius: 6px; cursor: pointer;">
+                            </div>
+                            <div class="form-group" style="flex: 2;">
+                                <label for="embed-image" data-translate="tools_embed_image">URL de Imagen (Opcional)</label>
+                                <input type="text" id="embed-image" class="input-text" placeholder="https://ejemplo.com/imagen.png">
+                            </div>
+                        </div>
+                        <button class="btn-primary" onclick="sendCustomEmbed()" style="background: var(--success); color: #000;">
+                            <i class="fa-solid fa-paper-plane"></i> <span data-translate="btn_send_embed">Enviar Embed</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Roles Panel -->
+                <div id="roles-panel" class="tab-content">
+                    <div class="panel-header">
+                        <h2 data-translate="roles_title">🎭 Roles del Servidor</h2>
+                        <p data-translate="roles_desc">Vista general de todos los roles creados en tu servidor organizados por jerarquía.</p>
+                    </div>
+                    
+                    <button class="btn-primary" onclick="loadServerRoles()" style="margin-bottom: 1.5rem;">
+                        <i class="fa-solid fa-arrows-rotate"></i> Cargar Roles
+                    </button>
+                    
+                    <div id="roles-list-container" style="display: grid; gap: 0.5rem; max-height: 600px; overflow-y: auto;">
+                        <!-- Loaded dynamically -->
+                        <div style="text-align: center; color: var(--text-muted); padding: 2rem;">Haz clic en Cargar Roles para visualizar la lista.</div>
                     </div>
                 </div>
 
