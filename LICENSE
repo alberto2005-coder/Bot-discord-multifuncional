@@ -1,21 +1,136 @@
-MIT License
+# LICENCIA DE SOFTWARE PERSONALIZADA
 
-Copyright (c) 2025 alberto2005-coder
+**Propietario Original:** Alberto Ortiz (usuario GitHub: `alberto2005-coder`)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+**Última actualización:** 2026
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+---
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+## 1. DERECHOS DE USO
+
+Se otorga permiso para usar, copiar, modificar y distribuir este software únicamente para propósitos **NO COMERCIALES**, sujeto a las condiciones establecidas en esta licencia.
+
+## 2. RESTRICCIÓN COMERCIAL
+
+**PROHIBICIÓN EXPLÍCITA:**
+- Este software **NO PUEDE ser comercializado, vendido, o utilizado con fines comerciales de ninguna forma**, incluyendo pero no limitado a:
+  - Venta del software o productos derivados
+  - Integración en servicios pagos
+  - Uso en productos o servicios ofrecidos a cambio de dinero
+  - Explotación comercial de cualquier tipo
+
+**EXCEPCIÓN:** Solo con autorización **explícita y por escrito** del autor original (Alberto Ortiz).
+
+## 3. REQUISITOS PARA FORKS Y MODIFICACIONES
+
+Si haces un fork o creas una variación de este software:
+
+### 3.1 Atribución Obligatoria
+- **Debes** mantener una referencia clara y visible al proyecto original
+- **Debes** incluir el nombre del autor original: Alberto Ortiz (alberto2005-coder)
+- **Debes** proporcionar un enlace al repositorio original
+- **Debes** indicar qué cambios se realizaron respecto al original
+
+### 3.2 Marca de Agua y Notificación
+- **Debes** incluir una marca de agua visible (en la interfaz, documentación, o ambos) que indique:
+  - "Basado en el trabajo original de Alberto Ortiz (alberto2005-coder)"
+  - La fecha de la última modificación significativa
+- Esta marca de agua **NO puede ser removida ni ocultada**
+
+### 3.3 Prohibición de Comercialización
+- Los forks y variaciones **también están sujetos a la restricción comercial**
+- **No pueden ser comercializados** bajo ninguna circunstancia sin autorización escrita
+- Deben mantener esta misma licencia o una equivalente más restrictiva
+
+## 4. RESPONSABILIDADES DEL USUARIO
+
+Al usar este software, aceptas que:
+
+- **USAS ESTE SOFTWARE BAJO TU PROPIO RIESGO**
+- El software se proporciona "TAL CUAL", sin garantías de ningún tipo
+- El autor no es responsable por daños, pérdidas de datos, o cualquier otro perjuicio
+- Eres responsable de verificar la legalidad de tu uso en tu jurisdicción
+
+## 5. REQUISITOS DE REDISTRIBUCIÓN
+
+Si redistribuyes este software o cualquier variación:
+
+- **Debes** incluir una copia completa de esta licencia
+- **Debes** indicar claramente cualquier modificación realizada
+- **Debes** mantener los avisos de copyright y atribución
+- **Debes** proporcionar acceso al código fuente (si aplica)
+- **No puedes** cambiar los términos de la licencia para hacerla más permisiva
+
+## 6. SOLICITUD DE AUTORIZACIÓN COMERCIAL
+
+Para solicitar autorización para usar este software con fines comerciales, contacta a:
+
+**Alberto Ortiz**
+- GitHub: `alberto2005-coder`
+- *[Incluir datos de contacto adicionales si lo deseas]*
+
+La autorización debe ser **otorgada explícitamente por escrito** y puede incluir términos adicionales, royalties u otros requisitos.
+
+## 7. ENFORCEMENT
+
+Si se detecta:
+- Uso comercial no autorizado
+- Remoción de atribuciones o marcas de agua
+- Violación de cualquiera de estos términos
+
+El autor se reserva el derecho a:
+- Exigir la cesación inmediata del uso
+- Iniciar acciones legales apropiadas
+- Solicitar compensación por daños
+- Requiere la eliminación de todas las copias
+
+## 8. CLÁUSULA DE CUMPLIMIENTO
+
+Al usar, copiar, modificar o distribuir este software, confirmas que:
+- Has leído y entendido completamente esta licencia
+- Aceptas todos los términos y condiciones
+- Te comprometes a cumplir con esta licencia
+- Eres responsable de asegurar que terceros también cumplan
+
+## 9. CAMBIOS EN ESTA LICENCIA
+
+El autor original se reserva el derecho a modificar esta licencia en futuras versiones. Sin embargo, esto **no afectará los derechos ya otorgados** bajo versiones anteriores, salvo para nuevas distribuciones.
+
+## 10. VALIDEZ Y JURISDICCIÓN
+
+Esta licencia es válida y aplicable en todas las jurisdicciones. En caso de conflicto con leyes locales, prevalecerán los términos más restrictivos.
+
+---
+
+## AVISOS ADICIONALES
+
+**Copyright © 2026 Alberto Ortiz (alberto2005-coder)**
+
+Todos los derechos reservados. Este software y su documentación están protegidos por derechos de autor internacionales.
+
+---
+
+## CÓMO USAR ESTA LICENCIA
+
+1. **Copia este archivo como `LICENSE`** en la raíz de tu repositorio GitHub
+2. **Actualiza el año** si cambios ocurren en años posteriores
+3. **Añade datos de contacto** si deseas que las solicitudes comerciales te lleguen directamente
+4. **Referencia esta licencia** en tu README.md:
+
+```markdown
+## Licencia
+
+Este proyecto está bajo la **Licencia Personalizada de Alberto Ortiz**.
+Consulta el archivo `LICENSE` para más detalles.
+
+**Resumen:**
+- ✅ Uso no comercial permitido
+- ❌ No se permite comercialización sin autorización
+- ⚠️ Los forks deben mantener atribución visible
+- 📌 Debe incluir marca de agua del original
+```
+
+---
+
+**Última revisión:** Mayo 2026
+**Autor:** Alberto Ortiz (alberto2005-coder)
