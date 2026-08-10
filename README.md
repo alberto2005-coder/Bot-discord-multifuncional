@@ -150,6 +150,13 @@ Cada comando sigue una estructura estándar:
 
 ## Funcionalidades principales
 
+### Sistema de Economía y Niveles
+* Base de datos robusta usando `better-sqlite3`.
+* Comandos de economía: balance, trabajo, recompensas diarias, transferencias, tienda.
+* Sistema de niveles: ganar XP por mensaje con enfriamiento para evitar spam.
+* Leaderboard para ver los usuarios más activos del servidor.
+* Mensajes de felicitación al subir de nivel.
+
 ### Sistema de tickets
 
 * Panel interactivo con botones
@@ -248,6 +255,13 @@ Cada comando sigue una estructura estándar:
 * Crear canales privados
 * Conectarse y hablar en canales de voz
 
+### Panel Web Avanzado (Dashboard)
+* Control total del bot desde una interfaz web gráfica (http://localhost:3000/dashboard).
+* Despliegue de paneles de tickets y creador de embeds personalizados desde la web.
+* Visor de roles del servidor.
+* Configuración de la XP ganada por mensaje.
+* Soporte nativo para modo oscuro y bilingüe (Español/Inglés).
+
 ## Registro de cambios
 
 * 30 de junio de 2025: Configuración inicial con comandos básicos
@@ -268,6 +282,9 @@ Cada comando sigue una estructura estándar:
 * 10 de julio de 2026: Añadido sistema de persistencia de configuraciones de servidor mediante JSON (database.js)
 * 10 de julio de 2026: Implementado panel web de control y configuración interactivo (dashboard.html) con modo claro/oscuro y soporte bilingüe (español/inglés)
 * 10 de julio de 2026: Implementados comandos y controles de reproducción de música utilizando DisTube
+* 10 de agosto de 2026: Añadido sistema de Economía y Niveles con base de datos SQLite (better-sqlite3).
+* 10 de agosto de 2026: Actualizado Dashboard web con herramientas de administración remota (Tickets, Embeds, Roles, XP).
+* 10 de agosto de 2026: Licencia actualizada a términos propietarios con requisito estricto de créditos.
 
 ## Preferencias del usuario
 
