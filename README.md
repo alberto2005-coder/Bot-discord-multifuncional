@@ -1,292 +1,405 @@
-# Proyecto Bot de Discord
+# Bot de Discord multifuncional
 
-## Resumen
+[Español](#español) · [English](#english)
 
-Este es un bot de Discord construido con Discord.js v14 que ofrece varios comandos en diferentes categorías como moderación, diversión, información y utilidades. El bot utiliza comandos slash y está diseñado con una estructura modular para facilitar su mantenimiento y expansión.
+---
 
-**Creado por:** eldestructor7614 (<@1016814881112084533>)
+## Español
 
-## Arquitectura del Sistema
+### Índice
 
-### Arquitectura Backend
+- [Descripción](#descripción)
+- [Funcionalidades](#funcionalidades)
+- [Arquitectura](#arquitectura)
+- [Requisitos](#requisitos)
+- [Instalación](#instalación)
+- [Despliegue de comandos](#despliegue-de-comandos)
+- [Panel web](#panel-web)
+- [Permisos del bot](#permisos-del-bot)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Registro de cambios](#registro-de-cambios)
+- [Licencia](#licencia)
 
-* **Entorno de ejecución:** Node.js
-* **Framework principal:** Discord.js v14
-* **Patrón de arquitectura:** Basado en eventos con manejadores de comandos
-* **Estructura de archivos:** Comandos organizados modularmente por categoría
+### Descripción
 
-### Componentes clave
+Bot de Discord construido con **Discord.js v14** que agrupa moderación, diversión, información, utilidades, tickets, economía, música y administración en un único bot con **comandos slash**. La estructura es modular: cada categoría vive en su propio archivo dentro de `commands/`, lo que facilita añadir o quitar funciones.
 
-1. **Aplicación principal (`index.js`)**
+**Creado por:** eldestructor7614.
 
-   * Inicialización del cliente del bot con los intents necesarios
-   * Gestión de la colección de comandos
-   * Manejo de eventos como cuando el bot está listo o hay interacciones
-   * Centro principal de toda la funcionalidad del bot
+### Funcionalidades
 
-2. **Despliegue de comandos (`deploy-commands.js`)**
+**Sistema de economía y niveles**
 
-   * Registro automático de comandos slash en la API de Discord
-   * Recolecta comandos de todos los módulos y los registra globalmente
-   * Usa la API REST de Discord para gestionar comandos
+- Base de datos **SQLite** con `better-sqlite3`.
+- Comandos de economía: balance, trabajo, recompensa diaria, transferencias y tienda.
+- XP por mensaje con enfriamiento para evitar spam, niveles y leaderboard.
+- Mensaje de felicitación al subir de nivel.
 
-3. **Módulos de comandos** (organizados por categoría):
+**Tickets de soporte**
 
-   * **Moderación** (`commands/moderation.js`): Funciones de gestión del servidor como expulsar o banear
-   * **Diversión** (`commands/fun.js`): Juegos, bromas y entretenimiento
-   * **Información** (`commands/info.js`): Datos de servidores y usuarios
-   * **Utilidades** (`commands/utility.js`): Funciones básicas como ping y ayuda
-   * **Sistema de tickets** (`commands/tickets.js`): Gestión completa de tickets de soporte
-   * **Gestión de roles** (`commands/roles.js`): Asignación y manejo avanzado de roles
-   * **Gestión de canales** (`commands/channels.js`): Crear, editar y eliminar canales
-   * **AntiRaid** (`commands/antiraid.js`): Protección contra ataques y spam
-   * **Sistema de bienvenida** (`commands/welcome.js`): Mensajes personalizados de entrada y salida
-   * **Sistema de sorteos** (`commands/giveaways.js`): Gestión completa de sorteos y concursos
-   * **Sistema de música** (`commands/music.js`): Reproductor de música de YouTube con cola y controles
-   * **Comandos del dueño** (`commands/owner.js`): Comandos exclusivos para la gestión del bot
+- Panel interactivo con botones.
+- Creación automática de canales privados.
+- Cierre con confirmación y un solo ticket abierto por usuario.
+- Respuestas con embeds.
 
-### Estructura de comandos
+**Roles y canales**
 
-Cada comando sigue una estructura estándar:
+- Asignación de roles con validación jerárquica: no se pueden tocar roles iguales o superiores al tuyo.
+- Creación, edición y borrado de canales de texto, voz y categorías, con límite de usuarios en voz.
 
-* Definido con SlashCommandBuilder
-* Verificación de permisos donde corresponde
-* Respuestas con embeds para mejor experiencia
-* Manejo de errores y validaciones
+**AntiRaid**
 
-## Flujo de datos
+- Panel para activar y desactivar protecciones.
+- Bloqueo de enlaces, menciones `@everyone`/`@here` e invitaciones.
+- Límite configurable de menciones por mensaje.
+- Moderación automática con borrado y avisos, y bloqueo de emergencia del servidor.
 
-1. **Inicialización del bot**
+**Moderación**
 
-   * Carga de variables de entorno
-   * Inicialización del cliente de Discord con intents
-   * Registro de todos los comandos
-   * Conexión a la puerta de enlace de Discord
+- Advertencias con escalada automática e historial.
+- Silencios temporales con duración configurable.
+- Expulsiones y baneos con registro y aviso por MD.
 
-2. **Procesamiento de comandos**
+**Diversión**
 
-   * Recepción de interacción desde Discord
-   * Validación del comando y permisos
-   * Ejecución de la lógica del comando
-   * Respuesta mediante embeds o texto simple
+- Bola 8, piedra-papel-tijera, calculadora del amor.
+- Dados, números aleatorios, moneda y memes.
 
-3. **Despliegue de comandos**
+**Bienvenida y despedida**
 
-   * Proceso separado para registrar comandos en Discord
-   * Recolecta definiciones y las envía para disponibilidad global
+- Mensajes, canales, colores y plantillas configurables, con variables dinámicas.
 
-## Dependencias externas
+**Sorteos**
 
-### Dependencias principales
+- Participación por reacción o botones, duración de 1 minuto a 7 días.
+- Varios ganadores, actualización en vivo y control manual para finalizar o repetir.
 
-* **discord.js v14.21.0**: Biblioteca principal para Discord
-* **dotenv v17.0.0**: Gestión de variables de entorno
+**Música**
 
-### Integración con la API de Discord
+- Reproducción desde YouTube con DisTube: cola, pausa, salto, parada y volumen (0-100 %).
+- Modos de repetición y colas independientes por servidor.
 
-* Usa Gateway para eventos en tiempo real
-* API REST para registro y gestión de comandos
-* Requiere token y client ID del portal de desarrolladores
+**Comandos del propietario**
 
-### Variables de entorno necesarias
+- Cambiar estado, avatar y nombre del bot.
+- Estadísticas, lista de servidores, reinicio y apagado con confirmación.
+- Restringidos al creador.
 
-* `DISCORD_TOKEN`: Token de autenticación del bot
-* `CLIENT_ID`: ID de la aplicación Discord
+### Arquitectura
 
-## Estrategia de despliegue
+**Componentes clave**
 
-### Configuración actual
+1. **`index.js`** — cliente de Discord con los *intents* necesarios, colección de comandos y manejo de eventos.
+2. **`deploy-commands.js`** — recoge los comandos de todos los módulos y los registra en la API de Discord.
+3. **`commands/*.js`** — un módulo por categoría: `moderation`, `fun`, `info`, `utility`, `tickets`, `roles`, `channels`, `antiraid`, `welcome`, `giveaways`, `music`, `owner`.
+4. **`database.js`** — persistencia de la configuración de cada servidor en JSON.
 
-* Aplicación Node.js sencilla
-* Configuración basada en entorno
-* Despliegue manual de comandos con script separado
+**Flujo de una interacción**
 
-### Permisos que necesita el bot
+1. Discord envía la interacción al bot por el Gateway.
+2. Se valida el comando y los permisos.
+3. Se ejecuta la lógica correspondiente.
+4. Se responde con un embed o texto.
+
+Cada comando se define con `SlashCommandBuilder`, comprueba permisos cuando hace falta y responde con embeds.
+
+### Requisitos
+
+- **Node.js 18 o superior**.
+- Una aplicación de Discord con bot creada en <https://discord.com/developers/applications>.
+- `DISCORD_TOKEN` y `CLIENT_ID` del portal de desarrolladores.
+
+### Instalación
+
+```bash
+git clone https://github.com/alberto2005-coder/Bot-discord-multifuncional.git
+cd Bot-discord-multifuncional
+npm install
+```
+
+Crea un archivo `.env` en la raíz:
+
+```env
+DISCORD_TOKEN=tu_token_del_bot
+CLIENT_ID=tu_client_id
+```
+
+> No subas nunca el `.env` al repositorio.
+
+### Despliegue de comandos
+
+Los comandos slash hay que registrarlos antes de usarlos:
+
+```bash
+node deploy-commands.js
+node index.js
+```
+
+Tras cambiar cualquier comando, vuelve a ejecutar `deploy-commands.js`.
+
+### Panel web
 
-* Leer mensajes / ver canales
-* Enviar mensajes
-* Usar comandos slash
-* Expulsar miembros (para moderación)
-* Banear miembros (para moderación)
-* Gestionar mensajes (implícito para moderación)
-* Gestionar canales (para sistema de tickets)
-* Crear canales privados (para tickets)
-* Conectarse a canales de voz (para música)
-* Hablar en canales de voz (para música)
-* Usar actividad de voz (para música)
+El bot incluye un **dashboard** en <http://localhost:3000/dashboard> con:
+
+- Despliegue de paneles de tickets y creador de embeds.
+- Visor de roles del servidor.
+- Configuración de la XP por mensaje.
+- Modo claro/oscuro y soporte bilingüe (ES/EN).
 
-### Proceso de despliegue
+### Permisos del bot
+
+- Leer mensajes y ver canales.
+- Enviar mensajes y usar comandos slash.
+- Expulsar y banear miembros.
+- Gestionar mensajes y canales.
+- Crear canales privados (tickets).
+- Conectarse y hablar en canales de voz (música).
 
-1. Instalar dependencias: `npm install`
-2. Configurar variables de entorno
-3. Desplegar comandos: `node deploy-commands.js`
-4. Iniciar bot: `node index.js`
+### Estructura del proyecto
 
-## Decisiones arquitectónicas clave
+```text
+Bot-discord-multifuncional/
+├── index.js                 # Cliente, eventos y carga de comandos
+├── deploy-commands.js       # Registro de comandos slash
+├── database.js              # Configuración por servidor (JSON)
+├── dashboard.html           # Panel web de control
+├── commands/
+│   ├── moderation.js
+│   ├── fun.js
+│   ├── info.js
+│   ├── utility.js
+│   ├── tickets.js
+│   ├── roles.js
+│   ├── channels.js
+│   ├── antiraid.js
+│   ├── welcome.js
+│   ├── giveaways.js
+│   ├── music.js
+│   └── owner.js
+├── package.json
+├── .env                     # No versionado
+└── README.md
+```
 
-### Estructura modular de comandos
+### Registro de cambios
 
-**Problema:** Necesidad de organización y mantenimiento fácil
-**Solución:** Separar comandos en módulos por categoría
-**Beneficios:** Código más limpio, escalable y mantenible
+| Fecha | Cambio |
+|---|---|
+| 30 jun 2025 | Versión inicial con comandos básicos |
+| 30 jun 2025 | Sistema de tickets con paneles y botones |
+| 30 jun 2025 | Roles con validación jerárquica |
+| 30 jun 2025 | AntiRaid con panel interactivo y bloqueo de emergencia |
+| 30 jun 2025 | Gestión de canales y moderación con advertencias y muteos |
+| 30 jun 2025 | Ampliación de diversión, bienvenida y sorteos |
+| 30 jun 2025 | Música con YouTube y comandos de propietario |
+| 10 jul 2026 | Persistencia de configuración por servidor (`database.js`) |
+| 10 jul 2026 | Dashboard web con modo claro/oscuro y bilingüe |
+| 10 jul 2026 | Controles de música con DisTube |
+| 10 ago 2026 | Economía y niveles con SQLite (`better-sqlite3`) |
+| 10 ago 2026 | Herramientas remotas en el dashboard (tickets, embeds, roles, XP) |
+| 10 ago 2026 | Licencia actualizada a términos propietarios con créditos obligatorios |
 
-### Uso exclusivo de comandos slash
-
-**Problema:** Discord está eliminando comandos basados en mensajes
-**Solución:** Usar solo comandos slash
-**Beneficios:** Mejor experiencia, integración nativa, control automático de permisos
+### Licencia
 
-### Respuestas con embeds
+El proyecto usa **términos propietarios con requisito de créditos** desde el 10 de agosto de 2026. Consulta el archivo [LICENSE](LICENSE) y conserva la atribución a **eldestructor7614**.
 
-**Problema:** Respuestas de texto plano son poco atractivas
-**Solución:** Usar embeds para respuestas visualmente mejores
-**Beneficios:** Experiencia de usuario mejorada, presentación profesional
-
-### Control de acceso por permisos
-
-**Problema:** Restringir comandos peligrosos
-**Solución:** Uso del sistema de permisos de Discord
-**Beneficios:** Control seguro y automático de acceso
-
-## Funcionalidades principales
-
-### Sistema de Economía y Niveles
-* Base de datos robusta usando `better-sqlite3`.
-* Comandos de economía: balance, trabajo, recompensas diarias, transferencias, tienda.
-* Sistema de niveles: ganar XP por mensaje con enfriamiento para evitar spam.
-* Leaderboard para ver los usuarios más activos del servidor.
-* Mensajes de felicitación al subir de nivel.
-
-### Sistema de tickets
-
-* Panel interactivo con botones
-* Creación automática de canales privados
-* Gestión de usuarios en tickets
-* Cierre automático con confirmación
-* Previene que un usuario tenga varios tickets abiertos
-* Mensajes y respuestas con embeds profesionales
-
-### Gestión de roles
-
-* Asignación inteligente de roles con validación jerárquica
-* Comprobación de permisos para evitar abusos
-* Listado de roles del servidor o usuario
-* No permite modificar roles iguales o superiores al del usuario
-
-### Protección AntiRaid
-
-* Panel interactivo para activar/desactivar protecciones
-* Bloqueo de enlaces, menciones @everyone/@here y invitaciones
-* Límite configurable de menciones por mensaje
-* Moderación automática con eliminación y avisos
-* Bloqueo de emergencia para todo el servidor
-* Monitoreo y respuesta en tiempo real
-
-### Gestión de canales
-
-* Crear canales de texto, voz y categorías con configuraciones personalizadas
-* Establecer límites de usuarios en canales de voz
-* Editar nombres y configuraciones de canales existentes
-* Eliminación segura con confirmaciones y registros
-
-### Sistema avanzado de moderación
-
-* Registro y seguimiento de advertencias con escalada automática
-* Silenciar usuarios temporalmente con duración configurable
-* Comandos de expulsión/ban con registros detallados
-* Gestión completa de advertencias (ver, borrar, historial)
-* Notificaciones automáticas vía DM a usuarios sancionados
-
-### Colección de juegos y diversión
-
-* Juegos interactivos: bola 8, piedra-papel-tijera, calculadora de amor
-* Generadores aleatorios: dados, números, moneda, memes
-* Bromas, datos curiosos y memes integrados
-* Juegos sociales y tests de compatibilidad
-
-### Sistema de bienvenida y despedida
-
-* Mensajes personalizados y configurables
-* Canales, colores y plantillas personalizables
-* Variables dinámicas (nombre de usuario, servidor, etc.)
-* Mensajes con embeds profesionales
-* Herramientas para probar configuraciones
-
-### Sistema de sorteos y concursos
-
-* Sorteos interactivos con participación por reacción o botones
-* Duración personalizable (1 minuto a 7 días)
-* Soporte para múltiples ganadores
-* Control manual para finalizar o volver a sortear
-* Actualizaciones en vivo de participantes
-* Usuarios pueden unirse o salir con botones
-* Herramientas administrativas para gestionar sorteos activos
-
-### Sistema de música
-
-* Integración con YouTube para reproducir canciones
-* Gestión de cola, lista y reproducción
-* Controles de reproducción: play, pausa, saltar, detener
-* Control de volumen ajustable (0-100%)
-* Modos de repetición: canción, lista o desactivado
-* Conexión automática a canales de voz
-* Mensajes con embeds profesionales con info y miniaturas
-* Soporte para varios servidores con colas independientes
-
-### Comandos del propietario
-
-* Cambiar estado del bot (jugando, escuchando, viendo, etc.)
-* Cambiar avatar con imágenes
-* Cambiar nombre de usuario
-* Panel con estadísticas e información detallada
-* Ver lista de servidores donde está activo
-* Reiniciar bot con recuperación automática
-* Apagar bot con confirmación
-* Comandos restringidos solo para el creador (eldestructor7614)
-* Limpiar estado actual del bot cuando sea necesario
-
-### Permisos necesarios para el bot
-
-* Leer mensajes y ver canales
-* Enviar mensajes
-* Usar comandos slash
-* Expulsar y banear miembros
-* Gestionar mensajes y canales
-* Crear canales privados
-* Conectarse y hablar en canales de voz
-
-### Panel Web Avanzado (Dashboard)
-* Control total del bot desde una interfaz web gráfica (http://localhost:3000/dashboard).
-* Despliegue de paneles de tickets y creador de embeds personalizados desde la web.
-* Visor de roles del servidor.
-* Configuración de la XP ganada por mensaje.
-* Soporte nativo para modo oscuro y bilingüe (Español/Inglés).
-
-## Registro de cambios
-
-* 30 de junio de 2025: Configuración inicial con comandos básicos
-* 30 de junio de 2025: Añadido sistema completo de tickets con paneles y botones
-* 30 de junio de 2025: Añadido sistema de roles con validación jerárquica
-* 30 de junio de 2025: Añadido sistema antiraid completo con panel interactivo
-* 30 de junio de 2025: Añadidos comandos de gestión de canales
-* 30 de junio de 2025: Añadido bloqueo de emergencia para protección antiraid
-* 30 de junio de 2025: Mejoras en moderación con sistema de advertencias y muteos
-* 30 de junio de 2025: Expansión de comandos de diversión con juegos y memes
-* 30 de junio de 2025: Añadido sistema de bienvenida y despedida personalizado
-* 30 de junio de 2025: Integración profesional de eventos de entrada/salida
-* 30 de junio de 2025: Añadido sistema completo de sorteos interactivos
-* 30 de junio de 2025: Corrección del sistema de advertencias para ser por servidor
-* 30 de junio de 2025: Implementado sistema completo de música con YouTube
-* 30 de junio de 2025: Añadidos comandos exclusivos para el propietario
-* 30 de junio de 2025: Implementadas funciones para reinicio y apagado seguro
-* 10 de julio de 2026: Añadido sistema de persistencia de configuraciones de servidor mediante JSON (database.js)
-* 10 de julio de 2026: Implementado panel web de control y configuración interactivo (dashboard.html) con modo claro/oscuro y soporte bilingüe (español/inglés)
-* 10 de julio de 2026: Implementados comandos y controles de reproducción de música utilizando DisTube
-* 10 de agosto de 2026: Añadido sistema de Economía y Niveles con base de datos SQLite (better-sqlite3).
-* 10 de agosto de 2026: Actualizado Dashboard web con herramientas de administración remota (Tickets, Embeds, Roles, XP).
-* 10 de agosto de 2026: Licencia actualizada a términos propietarios con requisito estricto de créditos.
-
-## Preferencias del usuario
-
-Estilo de comunicación preferido: lenguaje sencillo y cotidiano.
-Creador del bot: eldestructor7614 (<@1016814881112084533>)
+---
+
+## English
+
+### Table of contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Deploying commands](#deploying-commands)
+- [Web dashboard](#web-dashboard)
+- [Bot permissions](#bot-permissions)
+- [Project structure](#project-structure)
+- [Changelog](#changelog)
+- [License](#license)
+
+### Overview
+
+A Discord bot built with **Discord.js v14** that bundles moderation, fun, information, utilities, tickets, economy, music and administration into a single bot with **slash commands**. The structure is modular: each category lives in its own file under `commands/`, which makes adding or removing features easy.
+
+**Created by:** eldestructor7614.
+
+### Features
+
+**Economy and levels**
+
+- **SQLite** database via `better-sqlite3`.
+- Economy commands: balance, work, daily reward, transfers and shop.
+- Per-message XP with cooldown to prevent spam, levels and a leaderboard.
+- Level-up congratulation messages.
+
+**Support tickets**
+
+- Interactive panel with buttons.
+- Automatic private channel creation.
+- Confirmation-based closing and one open ticket per user.
+- Embed responses.
+
+**Roles and channels**
+
+- Role assignment with hierarchy validation: you cannot touch roles equal to or above your own.
+- Create, edit and delete text, voice and category channels, with a user limit for voice.
+
+**AntiRaid**
+
+- Panel to enable and disable protections.
+- Blocks links, `@everyone`/`@here` mentions and invites.
+- Configurable mention limit per message.
+- Automatic moderation with deletion and warnings, plus an emergency server lockdown.
+
+**Moderation**
+
+- Warnings with automatic escalation and history.
+- Temporary mutes with configurable duration.
+- Kicks and bans with logging and DM notifications.
+
+**Fun**
+
+- Magic 8-ball, rock-paper-scissors, love calculator.
+- Dice, random numbers, coin flip and memes.
+
+**Welcome and goodbye**
+
+- Configurable messages, channels, colors and templates with dynamic variables.
+
+**Giveaways**
+
+- Entry by reaction or buttons, duration from 1 minute to 7 days.
+- Multiple winners, live updates and manual controls to end or reroll.
+
+**Music**
+
+- YouTube playback via DisTube: queue, pause, skip, stop and volume (0-100 %).
+- Repeat modes and per-server independent queues.
+
+**Owner commands**
+
+- Change the bot's status, avatar and username.
+- Statistics, server list, restart and shutdown with confirmation.
+- Restricted to the creator.
+
+### Architecture
+
+**Key components**
+
+1. **`index.js`** — Discord client with the required *intents*, command collection and event handling.
+2. **`deploy-commands.js`** — gathers commands from every module and registers them with the Discord API.
+3. **`commands/*.js`** — one module per category: `moderation`, `fun`, `info`, `utility`, `tickets`, `roles`, `channels`, `antiraid`, `welcome`, `giveaways`, `music`, `owner`.
+4. **`database.js`** — per-server configuration persisted as JSON.
+
+**Interaction flow**
+
+1. Discord sends the interaction to the bot over the Gateway.
+2. The command and permissions are validated.
+3. The matching logic runs.
+4. The reply goes out as an embed or plain text.
+
+Every command is defined with `SlashCommandBuilder`, checks permissions where needed and replies with embeds.
+
+### Requirements
+
+- **Node.js 18 or later**.
+- A Discord application with a bot created at <https://discord.com/developers/applications>.
+- `DISCORD_TOKEN` and `CLIENT_ID` from the developer portal.
+
+### Installation
+
+```bash
+git clone https://github.com/alberto2005-coder/Bot-discord-multifuncional.git
+cd Bot-discord-multifuncional
+npm install
+```
+
+Create a `.env` file in the root:
+
+```env
+DISCORD_TOKEN=your_bot_token
+CLIENT_ID=your_client_id
+```
+
+> Never commit `.env` to the repository.
+
+### Deploying commands
+
+Slash commands must be registered before use:
+
+```bash
+node deploy-commands.js
+node index.js
+```
+
+Re-run `deploy-commands.js` after changing any command.
+
+### Web dashboard
+
+The bot ships a **dashboard** at <http://localhost:3000/dashboard> with:
+
+- Ticket panel deployment and a custom embed builder.
+- Server role viewer.
+- Per-message XP configuration.
+- Light/dark mode and bilingual support (ES/EN).
+
+### Bot permissions
+
+- Read messages and view channels.
+- Send messages and use slash commands.
+- Kick and ban members.
+- Manage messages and channels.
+- Create private channels (tickets).
+- Connect and speak in voice channels (music).
+
+### Project structure
+
+```text
+Bot-discord-multifuncional/
+├── index.js                 # Client, events and command loading
+├── deploy-commands.js       # Slash command registration
+├── database.js              # Per-server configuration (JSON)
+├── dashboard.html           # Web control panel
+├── commands/
+│   ├── moderation.js
+│   ├── fun.js
+│   ├── info.js
+│   ├── utility.js
+│   ├── tickets.js
+│   ├── roles.js
+│   ├── channels.js
+│   ├── antiraid.js
+│   ├── welcome.js
+│   ├── giveaways.js
+│   ├── music.js
+│   └── owner.js
+├── package.json
+├── .env                     # Not versioned
+└── README.md
+```
+
+### Changelog
+
+| Date | Change |
+|---|---|
+| Jun 30, 2025 | Initial release with basic commands |
+| Jun 30, 2025 | Ticket system with panels and buttons |
+| Jun 30, 2025 | Roles with hierarchy validation |
+| Jun 30, 2025 | AntiRaid with interactive panel and emergency lockdown |
+| Jun 30, 2025 | Channel management and moderation with warnings and mutes |
+| Jun 30, 2025 | Expanded fun, welcome and giveaways |
+| Jun 30, 2025 | YouTube music and owner commands |
+| Jul 10, 2026 | Per-server config persistence (`database.js`) |
+| Jul 10, 2026 | Web dashboard with light/dark and bilingual UI |
+| Jul 10, 2026 | Music controls with DisTube |
+| Aug 10, 2026 | Economy and levels with SQLite (`better-sqlite3`) |
+| Aug 10, 2026 | Remote dashboard tools (tickets, embeds, roles, XP) |
+| Aug 10, 2026 | License updated to proprietary terms with mandatory credits |
+
+### License
+
+The project uses **proprietary terms with a credits requirement** since August 10, 2026. See the [LICENSE](LICENSE) file and keep the attribution to **eldestructor7614**.
